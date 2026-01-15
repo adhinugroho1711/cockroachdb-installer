@@ -32,6 +32,10 @@
             padding: 0;
         }
 
+        html {
+            scroll-behavior: smooth;
+        }
+
         body {
             font-family: 'Outfit', sans-serif;
             line-height: 1.6;
@@ -421,6 +425,63 @@
             font-size: 0.875rem;
         }
 
+        /* Table of Contents Menu */
+        .toc-menu {
+            overflow-y: auto;
+            flex: 1;
+            padding-right: 8px;
+            /* Scrollbar spacing */
+        }
+
+        .toc-title {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--text-main);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 12px;
+            display: block;
+        }
+
+        .toc-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .toc-link {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 14px;
+            color: var(--text-main);
+            text-decoration: none;
+            font-size: 0.9rem;
+            border-radius: 10px;
+            transition: all 0.2s ease;
+            border: 1px solid transparent;
+        }
+
+        .toc-link:hover {
+            background: rgba(255, 255, 255, 0.03);
+            color: var(--text-bright);
+        }
+
+        .toc-link.active {
+            background: rgba(0, 245, 155, 0.1);
+            color: var(--primary);
+            border-color: rgba(0, 245, 155, 0.2);
+            font-weight: 600;
+        }
+
+        .toc-number {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            opacity: 0.7;
+            min-width: 20px;
+        }
+
         @media (max-width: 900px) {
             .container {
                 grid-template-columns: 1fr;
@@ -486,11 +547,15 @@
 
     <div class="container" id="app">
         <!-- Sidebar -->
-        <aside class="sidebar">
-            <div class="glass-card">
-                <div class="brand">
-                    <div class="brand-logo">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#020617" stroke-width="3"
+        <aside class="sidebar"
+            style="display: flex; flex-direction: column; gap: 16px; height: calc(100vh - 40px); overflow: hidden;">
+            <!-- 1. Compact Overview Card (Secukupnya) -->
+            <div class="glass-card"
+                style="padding: 16px; flex: 0 0 auto; display: flex; flex-direction: column; gap: 12px;">
+                <!-- Compact Brand -->
+                <div class="brand" style="margin-bottom: 0;">
+                    <div class="brand-logo" style="width: 28px; height: 28px;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#020617" stroke-width="3"
                             stroke-linecap="round" stroke-linejoin="round">
                             <path d="m14 7 3 3-3 3" />
                             <path d="m10 11-3-3 3-3" />
@@ -498,67 +563,111 @@
                             <path d="m9 2 3 3 3-3" />
                         </svg>
                     </div>
-                    <h1>CockroachDB <br>Deployment</h1>
+                    <h1 style="font-size: 1.1rem; line-height: 1.2;">CockroachDB<br><span
+                            style="font-size: 0.9rem; opacity: 0.7; font-weight: 500;">Checklist</span></h1>
                 </div>
 
-                <div class="progress-section">
-                    <div class="progress-label">
-                        <span>Overall Progress</span>
-                        <span id="progressPercent">0%</span>
+                <!-- Compact Progress -->
+                <div class="progress-section" style="margin-bottom: 0;">
+                    <div class="progress-label" style="font-size: 0.75rem; margin-bottom: 4px;">
+                        <span style="opacity: 0.8;">Progress</span>
+                        <span id="progressPercent" style="color: var(--primary);">0%</span>
                     </div>
-                    <div class="progress-bar-container">
+                    <div class="progress-bar-container" style="height: 6px;">
                         <div class="progress-bar-fill" id="progressFill"></div>
                     </div>
                 </div>
 
-                <div class="stat-grid">
-                    <div class="stat-item">
-                        <span class="stat-value" id="countDone">0</span>
-                        <span class="stat-label">Verified</span>
+                <!-- Compact Stats (Inline Grid) -->
+                <div class="stat-grid" style="grid-template-columns: 1fr 1fr; gap: 8px;">
+                    <div class="stat-item"
+                        style="padding: 8px; border-radius: 8px; background: rgba(255,255,255,0.02);">
+                        <span class="stat-value" id="countDone" style="font-size: 1.1rem;">0</span>
+                        <span class="stat-label" style="font-size: 0.7rem;">Verified</span>
                     </div>
-                    <div class="stat-item">
-                        <span class="stat-value" id="countTotal">0</span>
-                        <span class="stat-label">Tasks</span>
+                    <div class="stat-item"
+                        style="padding: 8px; border-radius: 8px; background: rgba(255,255,255,0.02);">
+                        <span class="stat-value" id="countTotal" style="font-size: 1.1rem;">0</span>
+                        <span class="stat-label" style="font-size: 0.7rem;">Tasks</span>
                     </div>
                 </div>
 
-                <div class="action-buttons">
-                    <button class="btn btn-primary" onclick="saveProgress()">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2.5">
+                <!-- Compact Actions (Grid) -->
+                <div class="action-buttons"
+                    style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 4px;">
+                    <button class="btn btn-primary" onclick="saveProgress()"
+                        style="padding: 8px; font-size: 0.8rem; justify-content: center;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2.5" style="margin-right: 6px;">
                             <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
-                            <polyline points="17 21 17 13 7 13 7 21" />
-                            <polyline points="7 3 7 8 15 8" />
                         </svg>
-                        Save Progress
+                        Save
                     </button>
-                    <button class="btn btn-secondary" onclick="window.print()">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2.5">
+                    <button class="btn btn-secondary" onclick="window.print()"
+                        style="padding: 8px; font-size: 0.8rem; justify-content: center;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2.5" style="margin-right: 6px;">
                             <polyline points="6 9 6 2 18 2 18 9" />
                             <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
                             <rect x="6" y="14" width="12" height="8" />
                         </svg>
-                        Export to PDF
+                        Print
                     </button>
-                    <button class="btn btn-secondary" style="color: var(--danger)" onclick="resetAll()">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2.5">
-                            <path d="M3 6h18" />
-                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-                        </svg>
+                    <button class="btn btn-secondary"
+                        style="grid-column: span 2; padding: 6px; font-size: 0.75rem; color: var(--danger); justify-content: center;"
+                        onclick="resetAll()">
                         Reset All
                     </button>
                 </div>
             </div>
 
-            <div class="glass-card" style="padding: 16px;">
-                <h3
-                    style="font-size: 0.8rem; text-transform: uppercase; margin-bottom: 12px; color: var(--text-bright)">
-                    Live Status</h3>
-                <div style="font-size: 0.85rem;">
-                    <p>Current Node Health: <span style="color: var(--success)">Healthy</span></p>
-                    <p style="margin-top: 8px;">Architecture: <span id="displayArch">aarch64</span></p>
+            <!-- 2. EXPANDED Table of Contents (Paling Besar) -->
+            <div class="glass-card toc-menu"
+                style="flex: 1; display: flex; flex-direction: column; overflow: hidden; padding: 20px;">
+                <span class="toc-title"
+                    style="font-size: 0.85rem; padding-bottom: 12px; border-bottom: 1px solid var(--border); margin-bottom: 16px; display: block;">Table
+                    of Contents</span>
+                <ul class="toc-list" style="overflow-y: auto; flex: 1; padding-right: 5px;">
+                    <li><a href="#section_os" class="toc-link"><span class="toc-number">01</span> Optimasi OS</a></li>
+                    <li><a href="#section_init" class="toc-link"><span class="toc-number">02</span> Init & Cluster
+                            Join</a></li>
+                    <li><a href="#section_sql" class="toc-link"><span class="toc-number">03</span> Active-Active SQL</a>
+                    </li>
+                    <li><a href="#section_ha" class="toc-link"><span class="toc-number">04</span> HA & Failover Test</a>
+                    </li>
+                    <li><a href="#section_opt" class="toc-link"><span class="toc-number">05</span> Optimization</a></li>
+                    <li><a href="#section_sec_setup" class="toc-link"><span class="toc-number">06</span> Security Setup
+                            (TLS)</a></li>
+                    <li><a href="#section_sec_hardening" class="toc-link"><span class="toc-number">07</span> Security
+                            Hardening</a></li>
+                </ul>
+            </div>
+
+            <!-- 3. Dynamic IP & Dashboard Info -->
+            <div class="glass-card" style="padding: 12px; flex: 0 0 auto;">
+                <div style="font-size: 0.75rem; display: flex; flex-direction: column; gap: 8px;">
+                    <div style="display: flex; flex-direction: column; gap: 4px;">
+                        <span
+                            style="opacity: 0.6; font-size: 0.65rem; text-transform: uppercase; font-weight: 700;">Primary
+                            Node IP</span>
+                        <div style="display: flex; gap: 6px;">
+                            <input type="text" id="nodeIpInput" value="192.168.2.114"
+                                style="flex: 1; background: rgba(0,0,0,0.2); border: 1px solid var(--border); border-radius: 4px; color: var(--text-bright); padding: 4px 8px; font-family: 'JetBrains Mono', monospace; font-size: 0.75rem;">
+                            <button onclick="saveIpConfig()"
+                                style="background: var(--primary); border: none; border-radius: 4px; padding: 0 8px; cursor: pointer; color: var(--bg-dark); font-weight: 700;">Set</button>
+                        </div>
+                    </div>
+
+                    <a href="http://192.168.2.114:8080" id="dashboardLink" target="_blank"
+                        style="display: flex; align-items: center; justify-content: center; gap: 6px; background: rgba(56, 189, 248, 0.1); color: var(--accent); text-decoration: none; padding: 8px; border-radius: 6px; font-weight: 600; border: 1px solid rgba(56, 189, 248, 0.2); transition: all 0.2s; margin-top: 4px;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2.5">
+                            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                            <polyline points="15 3 21 3 21 9" />
+                            <line x1="10" y1="14" x2="21" y2="3" />
+                        </svg>
+                        Open Admin UI
+                    </a>
                 </div>
             </div>
         </aside>
@@ -660,7 +769,7 @@ Swap: 0B</code>
             </section>
 
             <!-- SECTION 2: COCKROACHDB -->
-            <section id="section_db" class="section">
+            <section id="section_init" class="section">
                 <div class="section-header">
                     <div class="section-number">02</div>
                     <h2>CockroachDB Engine Setup</h2>
@@ -767,7 +876,7 @@ Swap: 0B</code>
                             <div class="code-block-wrapper">
                                 <span class="code-label">Run ONLY ONCE</span>
                                 <div class="code-container">
-                                    <code>cockroach init --insecure --host=192.168.2.114</code>
+                                    <code id="initCmdText">cockroach init --insecure --host=192.168.2.114</code>
                                     <button class="copy-btn">Copy</button>
                                 </div>
                             </div>
@@ -776,6 +885,29 @@ Swap: 0B</code>
                                 <div class="code-container">
                                     <code class="result-code">Cluster successfully initialized</code>
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- DB Task 4: Akses Dashboard -->
+                    <div class="item-card" data-id="db_dashboard">
+                        <div class="item-card-header" onclick="toggleCheck(this)">
+                            <div class="custom-checkbox"></div>
+                            <span class="item-title">Akses Dashboard (Admin UI) <span
+                                    style="font-size: 0.65rem; background: var(--accent); color: #000; padding: 2px 6px; border-radius: 4px; margin-left: 8px;">VERIFICATION</span></span>
+                            <span class="item-status">Pending</span>
+                        </div>
+                        <div class="item-body">
+                            <div class="code-block-wrapper">
+                                <span class="code-label">URL Admin UI</span>
+                                <div class="code-container">
+                                    <code id="dashboardUrlText">http://192.168.2.114:8080/</code>
+                                    <button class="copy-btn">Copy</button>
+                                </div>
+                            </div>
+                            <div class="note">
+                                Ganti IP dengan IP salah satu node Anda. Dashboard ini memantau health cluster,
+                                throughput, dan replikasi data secara visual.
                             </div>
                         </div>
                     </div>
@@ -809,9 +941,9 @@ Swap: 0B</code>
             </section>
 
             <!-- SECTION 4: ACTIVE-ACTIVE SQL TEST -->
-            <section id="section_active" class="section">
+            <section id="section_sql" class="section">
                 <div class="section-header">
-                    <div class="section-number">04</div>
+                    <div class="section-number">03</div>
                     <h2>Active-Active SQL Testing</h2>
                 </div>
 
@@ -890,9 +1022,9 @@ Swap: 0B</code>
             </section>
 
             <!-- SECTION 5: HA & FAILOVER -->
-            <section id="section_failover" class="section">
+            <section id="section_ha" class="section">
                 <div class="section-header">
-                    <div class="section-number">05</div>
+                    <div class="section-number">04</div>
                     <h2>High Availability & Failover Test</h2>
                 </div>
 
@@ -1008,7 +1140,7 @@ Swap: 0B</code>
                 <!-- SECTION 6: OPTIMIZATION & MONITORING -->
                 <section id="section_opt" class="section">
                     <div class="section-header">
-                        <div class="section-number">06</div>
+                        <div class="section-number">05</div>
                         <h2>SQL Optimization & Monitoring</h2>
                     </div>
 
@@ -1016,21 +1148,26 @@ Swap: 0B</code>
                         <div class="item-card" data-id="opt_pk">
                             <div class="item-card-header" onclick="toggleCheck(this)">
                                 <div class="custom-checkbox"></div>
-                                <span class="item-title">Anti-Hotspot Primary Key (UUID) <span
+                                <span class="item-title">Schema Guideline: Gunakan UUID (Anti-Hotspot) <span
                                         style="font-size: 0.65rem; background: var(--primary); color: #000; padding: 2px 6px; border-radius: 4px; margin-left: 8px;">Concept
                                         / Global</span></span>
                                 <span class="item-status">Pending</span>
                             </div>
                             <div class="item-body">
+                                <div class="note" style="grid-column: span 2; margin-bottom: 10px;">
+                                    <strong>PENTING:</strong> Jangan gunakan <code>SERIAL</code> (1, 2, 3...) untuk
+                                    Primary Key.
+                                    Hal ini menyebabkan "Hotspot" dimana semua write hanya masuk ke 1 node, membuat
+                                    cluster lambat.
+                                    <br><br>Gunakan <code>UUID</code> agar data tersebar merata ke semua node.
+                                </div>
                                 <div class="code-block-wrapper">
-                                    <span class="code-label">Example Schema</span>
+                                    <span class="code-label">Contoh Schema yang BENAR</span>
                                     <div class="code-container">
                                         <code>CREATE TABLE users (<br>  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),<br>  name TEXT<br>);</code>
                                         <button class="copy-btn">Copy</button>
                                     </div>
                                 </div>
-                                <div class="note">Gunakan UUID atau Hash-sharded Index untuk menghindari hotspot pada
-                                    node tertentu saat traffic tinggi.</div>
                             </div>
                         </div>
 
@@ -1077,170 +1214,124 @@ Swap: 0B</code>
                     </div>
                 </section>
 
-                <!-- SECTION 7: SECURITY HARDENING -->
-                <section id="section_sec" class="section">
+                <!-- SECTION 6: SECURITY SETUP (NETWORK & TLS) -->
+                <section id="section_sec_setup" class="section">
                     <div class="section-header">
-                        <div class="section-number">07</div>
-                        <h2>Security Hardening (Production Ready)</h2>
+                        <div class="section-number">06</div>
+                        <h2>Security Setup (Network & TLS)</h2>
                     </div>
 
                     <div
-                        style="background: rgba(239, 68, 68, 0.1); border: 2px solid var(--danger); border-radius: 16px; padding: 20px; margin-bottom: 20px;">
-                        <h3
-                            style="color: var(--danger); margin-bottom: 10px; display: flex; align-items: center; gap: 8px;">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2.5">
-                                <path
-                                    d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
-                                <line x1="12" y1="9" x2="12" y2="13" />
-                                <line x1="12" y1="17" x2="12.01" y2="17" />
-                            </svg>
-                            PERINGATAN: Mode Insecure untuk Testing Saja
-                        </h3>
-                        <p style="font-size: 0.9rem; opacity: 0.9">Setup saat ini menggunakan <code>--insecure</code>
-                            untuk kemudahan testing. Untuk production, wajib aktifkan TLS/SSL dan user authentication.
+                        style="background: rgba(16, 185, 129, 0.1); border: 1px solid var(--success); border-radius: 16px; padding: 15px; margin-bottom: 20px;">
+                        <p style="font-size: 0.9rem; color: var(--text-bright);">
+                            <strong>Fase Kritis:</strong> Mengamankan jaringan (Firewall) dan mengaktifkan Enkripsi
+                            (TLS) agar password authentication bisa digunakan.
                         </p>
                     </div>
 
                     <div class="checklist-grid">
+                        <!-- 1. Firewall -->
                         <div class="item-card" data-id="sec_firewall">
                             <div class="item-card-header" onclick="toggleCheck(this)">
                                 <div class="custom-checkbox"></div>
-                                <span class="item-title">Firewall IP Whitelisting <span
+                                <span class="item-title">1. Firewall IP Whitelisting <span
                                         style="font-size: 0.65rem; background: var(--warning); color: #000; padding: 2px 6px; border-radius: 4px; margin-left: 8px;">EXECUTE
                                         ON EACH NODE</span></span>
                                 <span class="item-status">Pending</span>
                             </div>
                             <div class="item-body">
                                 <div class="code-block-wrapper">
-                                    <span class="code-label">Batasi Akses SQL (Port 26257)</span>
+                                    <span class="code-label">Batasi Akses SQL (Port 26257) & Web UI (8080)</span>
                                     <div class="code-container">
-                                        <code># Aktifkan hanya dari IP cluster & aplikasi:<br>sudo ufw delete allow 26257/tcp<br>sudo ufw allow from 192.168.2.0/24 to any port 26257 proto tcp</code>
+                                        <code># Contoh UFW (Ubuntu)<br>sudo ufw allow from 192.168.2.0/24 to any port 26257 proto tcp<br>sudo ufw allow from 192.168.2.0/24 to any port 8080 proto tcp<br>sudo ufw delete allow 26257/tcp</code>
                                         <button class="copy-btn">Copy</button>
                                     </div>
                                 </div>
-                                <div class="code-block-wrapper">
-                                    <span class="code-label">Tutup Web UI dari Public (Port 8080)</span>
-                                    <div class="code-container">
-                                        <code>sudo ufw delete allow 8080/tcp<br>sudo ufw allow from 192.168.2.0/24 to any port 8080 proto tcp</code>
-                                        <button class="copy-btn">Copy</button>
-                                    </div>
-                                </div>
-                                <div class="note">Ganti 192.168.2.0/24 dengan subnet internal Anda.
-                                    Jangan expose port database ke internet publik.</div>
+                                <div class="note">Pastikan hanya IP internal/VPN yang bisa akses port database.</div>
                             </div>
                         </div>
 
-                        <div class="item-card" data-id="sec_user">
+                        <!-- 2. TLS CA -->
+                        <div class="item-card" data-id="tls_ca">
                             <div class="item-card-header" onclick="toggleCheck(this)">
                                 <div class="custom-checkbox"></div>
-                                <span class="item-title">Create Application User (Non-Root) <span
-                                        style="font-size: 0.65rem; background: var(--primary); color: #000; padding: 2px 6px; border-radius: 4px; margin-left: 8px;">Global
-                                        (Run Once)</span></span>
+                                <span class="item-title">2. Generate CA & Node Certs (Di Node 1) <span
+                                        style="font-size: 0.65rem; background: var(--primary); color: #000; padding: 2px 6px; border-radius: 4px; margin-left: 8px;">RUN
+                                        ON NODE 1</span></span>
                                 <span class="item-status">Pending</span>
                             </div>
                             <div class="item-body">
                                 <div class="code-block-wrapper">
-                                    <span class="code-label">Buat User Aplikasi</span>
+                                    <span class="code-label">Buat Direktori & CA</span>
                                     <div class="code-container">
-                                        <code>CREATE USER appuser;<br>ALTER USER appuser PASSWORD 'strong_password_here';<br>GRANT ALL ON DATABASE defaultdb TO appuser;</code>
-                                        <button class="copy-btn">Copy</button>
-                                    </div>
-                                </div>
-                                <div class="note">Jangan gunakan user 'root' untuk koneksi aplikasi.
-                                    Batasi privilege sesuai prinsip least privilege.</div>
-                            </div>
-                        </div>
-
-                        <div class="item-card" data-id="sec_audit">
-                            <div class="item-card-header" onclick="toggleCheck(this)">
-                                <div class="custom-checkbox"></div>
-                                <span class="item-title">Enable Audit Logging <span
-                                        style="font-size: 0.65rem; background: var(--primary); color: #000; padding: 2px 6px; border-radius: 4px; margin-left: 8px;">Global
-                                        (Run Once)</span></span>
-                                <span class="item-status">Pending</span>
-                            </div>
-                            <div class="item-body">
-                                <div class="code-block-wrapper">
-                                    <span class="code-label">Aktifkan SQL Audit Log</span>
-                                    <div class="code-container">
-                                        <code>SET CLUSTER SETTING sql.log.all_statements.enabled = true;</code>
+                                        <code>mkdir certs my-safe-directory<br>cockroach cert create-ca --certs-dir=certs --ca-key=my-safe-directory/ca.key</code>
                                         <button class="copy-btn">Copy</button>
                                     </div>
                                 </div>
                                 <div class="code-block-wrapper">
-                                    <span class="code-label">Verifikasi Log Location <span
-                                            style="color: var(--warning)">(Check on EACH Node)</span></span>
+                                    <span class="code-label">Generate Cert untuk Node 1</span>
                                     <div class="code-container">
-                                        <code>ls -lh /var/log/cockroach/cockroach-sql-audit.log</code>
+                                        <code># Masukkan SEMUA IP/Hostname Node 1<br>cockroach cert create-node localhost 127.0.0.1 192.168.2.114 --certs-dir=certs --ca-key=my-safe-directory/ca.key</code>
                                         <button class="copy-btn">Copy</button>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="item-card" data-id="sec_rate">
+                        <!-- 3. TLS Client -->
+                        <div class="item-card" data-id="tls_client">
                             <div class="item-card-header" onclick="toggleCheck(this)">
                                 <div class="custom-checkbox"></div>
-                                <span class="item-title">Rate Limiting & Connection Pooling <span
-                                        style="font-size: 0.65rem; background: var(--primary); color: #000; padding: 2px 6px; border-radius: 4px; margin-left: 8px;">Global
-                                        (Run Once)</span></span>
+                                <span class="item-title">3. Generate Client Cert (Root) <span
+                                        style="font-size: 0.65rem; background: var(--primary); color: #000; padding: 2px 6px; border-radius: 4px; margin-left: 8px;">RUN
+                                        ON NODE 1</span></span>
                                 <span class="item-status">Pending</span>
                             </div>
                             <div class="item-body">
                                 <div class="code-block-wrapper">
-                                    <span class="code-label">Set Max Connections per Node</span>
+                                    <span class="code-label">Generate Root Cert</span>
                                     <div class="code-container">
-                                        <code>SET CLUSTER SETTING server.max_connections_per_gateway = 500;</code>
+                                        <code>cockroach cert create-client root --certs-dir=certs --ca-key=my-safe-directory/ca.key</code>
                                         <button class="copy-btn">Copy</button>
                                     </div>
                                 </div>
-                                <div class="note">Gunakan connection pooling di aplikasi (HikariCP,
-                                    pgBouncer-like) untuk menghindari connection exhaustion.</div>
                             </div>
                         </div>
 
-                        <div class="item-card" data-id="sec_backup">
+                        <!-- 4. Transfer -->
+                        <div class="item-card" data-id="tls_dist">
                             <div class="item-card-header" onclick="toggleCheck(this)">
                                 <div class="custom-checkbox"></div>
-                                <span class="item-title">Automated Backup Strategy <span
-                                        style="font-size: 0.65rem; background: var(--primary); color: #000; padding: 2px 6px; border-radius: 4px; margin-left: 8px;">Global
-                                        (Run Once)</span></span>
+                                <span class="item-title">4. Transfer CA & Node Certs <span
+                                        style="font-size: 0.65rem; background: var(--warning); color: #000; padding: 2px 6px; border-radius: 4px; margin-left: 8px;">MANUAL
+                                        ACTION</span></span>
                                 <span class="item-status">Pending</span>
                             </div>
                             <div class="item-body">
-                                <div class="code-block-wrapper">
-                                    <span class="code-label">Full Backup Command</span>
-                                    <div class="code-container">
-                                        <code>cockroach sql --insecure -e "BACKUP INTO 'nodelocal://1/backup' AS OF SYSTEM TIME '-10s';"</code>
-                                        <button class="copy-btn">Copy</button>
-                                    </div>
+                                <div class="note" style="grid-column: span 2;">
+                                    <strong>PENTING:</strong><br>
+                                    1. Buat cert node untuk Node 2 & 3 di Node 1 (ganti IP).
+                                    <br>2. Transfer <code>ca.crt</code> dan <code>node.crt/key</code> ke setiap node
+                                    (folder <code>/var/lib/cockroach/certs</code>).
+                                    <br>3. <code>chown -R cockroach:cockroach /var/lib/cockroach/certs</code>
                                 </div>
-                                <div class="note">Setup cronjob untuk backup regular. Untuk production,
-                                    gunakan cloud storage (S3/GCS) sebagai backup destination.</div>
                             </div>
                         </div>
 
-                        <div class="item-card" data-id="sec_monitor">
+                        <!-- 5. Restart Secure -->
+                        <div class="item-card" data-id="tls_restart">
                             <div class="item-card-header" onclick="toggleCheck(this)">
                                 <div class="custom-checkbox"></div>
-                                <span class="item-title">Security Monitoring Checklist <span
-                                        style="font-size: 0.65rem; background: var(--primary); color: #000; padding: 2px 6px; border-radius: 4px; margin-left: 8px;">Global
-                                        (Run Once)</span></span>
+                                <span class="item-title">5. Restart Service in Secure Mode <span
+                                        style="font-size: 0.65rem; background: var(--warning); color: #000; padding: 2px 6px; border-radius: 4px; margin-left: 8px;">EXECUTE
+                                        ON EACH NODE</span></span>
                                 <span class="item-status">Pending</span>
                             </div>
                             <div class="item-body">
                                 <div class="code-block-wrapper">
-                                    <span class="code-label">Monitor Failed Login Attempts</span>
+                                    <span class="code-label">Update Systemd Service</span>
                                     <div class="code-container">
-                                        <code>SELECT * FROM system.eventlog WHERE "eventType" = 'client_authentication_failed' ORDER BY timestamp DESC LIMIT 20;</code>
-                                        <button class="copy-btn">Copy</button>
-                                    </div>
-                                </div>
-                                <div class="code-block-wrapper">
-                                    <span class="code-label">Check Active Sessions</span>
-                                    <div class="code-container">
-                                        <code>SHOW SESSIONS;</code>
+                                        <code># Hapus --insecure<br># Tambah --certs-dir=/var/lib/cockroach/certs<br>sudo systemctl daemon-reload && sudo systemctl restart cockroach</code>
                                         <button class="copy-btn">Copy</button>
                                     </div>
                                 </div>
@@ -1248,6 +1339,98 @@ Swap: 0B</code>
                         </div>
                     </div>
                 </section>
+
+                <!-- SECTION 7: SECURITY HARDENING (USER & DATA) -->
+                <section id="section_sec_hardening" class="section">
+                    <div class="section-header">
+                        <div class="section-number">07</div>
+                        <h2>Security Hardening (User & Data)</h2>
+                    </div>
+
+                    <div class="checklist-grid">
+                        <!-- 1. Root Password -->
+                        <div class="item-card" data-id="sec_root_pw">
+                            <div class="item-card-header" onclick="toggleCheck(this)">
+                                <div class="custom-checkbox"></div>
+                                <span class="item-title">Set Password Superuser (Root) <span
+                                        style="font-size: 0.65rem; background: var(--primary); color: #000; padding: 2px 6px; border-radius: 4px; margin-left: 8px;">GLOBAL
+                                        (RUN ONCE)</span></span>
+                                <span class="item-status">Pending</span>
+                            </div>
+                            <div class="item-body">
+                                <div class="code-block-wrapper">
+                                    <span class="code-label">Set Password (Run in Terminal/Shell)</span>
+                                    <div class="code-container">
+                                        <code>cockroach sql --certs-dir=certs --host=localhost -e "ALTER USER root WITH PASSWORD 'PasswordSuperKuat123!';"</code>
+                                        <button class="copy-btn">Copy</button>
+                                    </div>
+                                </div>
+                                <div class="note">Sekarang 'root' sudah aman dan dilindungi password.</div>
+                            </div>
+                        </div>
+
+                        <!-- 2. App User -->
+                        <div class="item-card" data-id="sec_user">
+                            <div class="item-card-header" onclick="toggleCheck(this)">
+                                <div class="custom-checkbox"></div>
+                                <span class="item-title">Create Application User <span
+                                        style="font-size: 0.65rem; background: var(--primary); color: #000; padding: 2px 6px; border-radius: 4px; margin-left: 8px;">GLOBAL
+                                        (RUN ONCE)</span></span>
+                                <span class="item-status">Pending</span>
+                            </div>
+                            <div class="item-body">
+                                <div class="code-block-wrapper">
+                                    <span class="code-label">Buat User Aplikasi (Terminal/Shell)</span>
+                                    <div class="code-container">
+                                        <code>cockroach sql --certs-dir=certs --host=localhost -e "CREATE USER IF NOT EXISTS appuser; ALTER USER appuser PASSWORD 'AppPassword123'; GRANT ALL ON DATABASE defaultdb TO appuser;"</code>
+                                        <button class="copy-btn">Copy</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 3. Audit Logging -->
+                        <div class="item-card" data-id="sec_audit">
+                            <div class="item-card-header" onclick="toggleCheck(this)">
+                                <div class="custom-checkbox"></div>
+                                <span class="item-title">Enable Audit Logging <span
+                                        style="font-size: 0.65rem; background: var(--primary); color: #000; padding: 2px 6px; border-radius: 4px; margin-left: 8px;">GLOBAL
+                                        (RUN ONCE)</span></span>
+                                <span class="item-status">Pending</span>
+                            </div>
+                            <div class="item-body">
+                                <div class="code-block-wrapper">
+                                    <span class="code-label">Aktifkan Audit Log (Terminal/Shell)</span>
+                                    <div class="code-container">
+                                        <code>cockroach sql --certs-dir=certs --host=localhost -e "SET CLUSTER SETTING sql.log.all_statements.enabled = true;"</code>
+                                        <button class="copy-btn">Copy</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 4. Rate Limiting -->
+                        <div class="item-card" data-id="sec_rate">
+                            <div class="item-card-header" onclick="toggleCheck(this)">
+                                <div class="custom-checkbox"></div>
+                                <span class="item-title">Connection Rate Limiting <span
+                                        style="font-size: 0.65rem; background: var(--primary); color: #000; padding: 2px 6px; border-radius: 4px; margin-left: 8px;">GLOBAL
+                                        (RUN ONCE)</span></span>
+                                <span class="item-status">Pending</span>
+                            </div>
+                            <div class="item-body">
+                                <div class="code-block-wrapper">
+                                    <span class="code-label">Batasi Koneksi (Terminal/Shell)</span>
+                                    <div class="code-container">
+                                        <code>cockroach sql --certs-dir=certs --host=localhost -e "SET CLUSTER SETTING server.max_connections_per_gateway = 500;"</code>
+                                        <button class="copy-btn">Copy</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
         </main>
 
         <footer>
@@ -1329,7 +1512,60 @@ Swap: 0B</code>
             }
         }
 
-        document.addEventListener('DOMContentLoaded', loadProgress);
+        // ScrollSpy for Table of Contents
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                // Saat section masuk ke viewport (threshold 0.2 atau 20%)
+                if (entry.isIntersecting) {
+                    const id = entry.target.getAttribute('id');
+                    // Remove active from all
+                    document.querySelectorAll('.toc-link').forEach(link => link.classList.remove('active'));
+                    // Add active to current
+                    const activeLink = document.querySelector(`.toc-link[href="#${id}"]`);
+                    if (activeLink) activeLink.classList.add('active');
+                }
+            });
+        }, { threshold: 0.2, rootMargin: "-10% 0px -50% 0px" }); // Margin helps trigger earlier/later
+
+        // Observe all sections
+        document.querySelectorAll('section').forEach((section) => {
+            observer.observe(section);
+        });
+
+        // Dynamic IP Configuration
+        function saveIpConfig() {
+            const ip = document.getElementById('nodeIpInput').value;
+            localStorage.setItem('cockroach_primary_ip', ip);
+            applyIpConfig(ip);
+            alert('IP Configuration Updated!');
+        }
+
+        function loadIpConfig() {
+            const savedIp = localStorage.getItem('cockroach_primary_ip');
+            if (savedIp) {
+                document.getElementById('nodeIpInput').value = savedIp;
+                applyIpConfig(savedIp);
+            }
+        }
+
+        function applyIpConfig(ip) {
+            // Update Dashboard Link in Sidebar
+            const dashboardLink = document.getElementById('dashboardLink');
+            if (dashboardLink) dashboardLink.href = `http://${ip}:8080`;
+
+            // Update Init Command in Section 02
+            const initCmdText = document.getElementById('initCmdText');
+            if (initCmdText) initCmdText.textContent = `cockroach init --insecure --host=${ip}`;
+
+            // Update Dashboard URL in Section 02
+            const dashboardUrlText = document.getElementById('dashboardUrlText');
+            if (dashboardUrlText) dashboardUrlText.textContent = `http://${ip}:8080/`;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadProgress();
+            loadIpConfig();
+        });
     </script>
 </body>
 
