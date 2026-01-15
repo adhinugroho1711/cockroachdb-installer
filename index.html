@@ -979,7 +979,70 @@ Swap: 0B</code>
                         </div>
                     </div>
                 </div>
-            </section>
+                <!-- SECTION 6: OPTIMIZATION & MONITORING -->
+                <section id="section_opt" class="section">
+                    <div class="section-header">
+                        <div class="section-number">06</div>
+                        <h2>SQL Optimization & Monitoring</h2>
+                    </div>
+
+                    <div class="checklist-grid">
+                        <div class="item-card" data-id="opt_pk">
+                            <div class="item-card-header" onclick="toggleCheck(this)">
+                                <div class="custom-checkbox"></div>
+                                <span class="item-title">Anti-Hotspot Primary Key (UUID)</span>
+                                <span class="item-status">Pending</span>
+                            </div>
+                            <div class="item-body">
+                                <div class="code-block-wrapper">
+                                    <span class="code-label">Example Schema</span>
+                                    <div class="code-container">
+                                        <code>CREATE TABLE users (<br>  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),<br>  name TEXT<br>);</code>
+                                        <button class="copy-btn">Copy</button>
+                                    </div>
+                                </div>
+                                <div class="note">Gunakan UUID atau Hash-sharded Index untuk menghindari hotspot pada
+                                    node tertentu saat traffic tinggi.</div>
+                            </div>
+                        </div>
+
+                        <div class="item-card" data-id="opt_read">
+                            <div class="item-card-header" onclick="toggleCheck(this)">
+                                <div class="custom-checkbox"></div>
+                                <span class="item-title">Follower Reads (Scale Performance)</span>
+                                <span class="item-status">Pending</span>
+                            </div>
+                            <div class="item-body">
+                                <div class="code-block-wrapper">
+                                    <span class="code-label">Stale Read Query</span>
+                                    <div class="code-container">
+                                        <code>SELECT * FROM users AS OF SYSTEM TIME follower_read_timestamp();</code>
+                                        <button class="copy-btn">Copy</button>
+                                    </div>
+                                </div>
+                                <div class="note">Cocok untuk dashboard/history yang tidak butuh real-time 100%,
+                                    mengurangi beban pada Leaseholder.</div>
+                            </div>
+                        </div>
+
+                        <div class="item-card" data-id="opt_mon">
+                            <div class="item-card-header" onclick="toggleCheck(this)">
+                                <div class="custom-checkbox"></div>
+                                <span class="item-title">Real-time Query Monitoring</span>
+                                <span class="item-status">Pending</span>
+                            </div>
+                            <div class="item-body">
+                                <div class="code-block-wrapper">
+                                    <span class="code-label">Cek Query Lambat (&gt;5s)</span>
+                                    <div class="code-container">
+                                        <code>SELECT query, start, now() - start AS duration<br>FROM crdb_internal.node_queries<br>WHERE now() - start &gt; '5s';</code>
+                                        <button class="copy-btn">Copy</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
         </main>
 
         <footer>

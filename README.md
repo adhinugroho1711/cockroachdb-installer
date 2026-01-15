@@ -31,8 +31,6 @@ cockroachdb-installer/
 │   ├── setup_os.sh             # OS optimization (kernel, limits, firewall)
 │   ├── setup_cockroach.sh      # CockroachDB installation & systemd
 │   └── setup_haproxy.sh        # HAProxy load balancer setup
-└── sql/
-    └── best_practices.sql      # SQL optimization examples (UUID PK, batching, etc)
 ```
 
 ---
@@ -130,7 +128,6 @@ Open `index.html` in your browser for detailed step-by-step checklist with progr
 
 - **Interactive Guide:** Open `index.html` in browser for complete walkthrough with checklist
 - **Release Notes:** See [RELEASE_NOTES.md](./RELEASE_NOTES.md) for version history
-- **SQL Best Practices:** See `sql/best_practices.sql` for optimization examples
 
 ---
 
