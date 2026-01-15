@@ -4,25 +4,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SOP CockroachDB - Checklist Interaktif & Verifikasi</title>
+    <title>CockroachDB Deployment Dashboard</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&family=JetBrains+Mono&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"
         rel="stylesheet">
     <style>
         :root {
-            --primary: #00a859;
-            --primary-dark: #008f4c;
-            --secondary: #121d33;
-            --accent: #3d85f7;
-            --bg: #f8fafc;
-            --card-bg: #ffffff;
-            --text-main: #334155;
-            --text-heading: #1e293b;
-            --border: #e2e8f0;
+            --primary: #00f59b;
+            --primary-dark: #00d486;
+            --bg-dark: #020617;
+            --surface-dark: #0f172a;
+            --surface-light: #1e293b;
+            --text-main: #94a3b8;
+            --text-bright: #f8fafc;
+            --accent: #38bdf8;
+            --border: rgba(255, 255, 255, 0.1);
             --success: #10b981;
             --warning: #f59e0b;
+            --danger: #ef4444;
         }
 
         * {
@@ -32,219 +33,450 @@
         }
 
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Outfit', sans-serif;
             line-height: 1.6;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background-color: var(--bg-dark);
+            background-image:
+                radial-gradient(at 0% 0%, rgba(0, 245, 155, 0.05) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(56, 189, 248, 0.05) 0px, transparent 50%);
             color: var(--text-main);
-            padding: 40px 20px;
+            padding: 20px;
             min-height: 100vh;
         }
 
         .container {
-            max-width: 1100px;
+            max-width: 1200px;
             margin: 0 auto;
-            background: var(--card-bg);
-            border-radius: 24px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            overflow: hidden;
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 24px;
         }
 
-        header {
-            background: linear-gradient(135deg, var(--secondary) 0%, #1e3a5f 100%);
-            color: white;
-            padding: 40px;
+        /* Sidebar / Overview Area */
+        .sidebar {
+            position: sticky;
+            top: 20px;
+            height: calc(100vh - 40px);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .glass-card {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 24px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .brand-logo {
+            width: 32px;
+            height: 32px;
+            background: var(--primary);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 20px rgba(0, 245, 155, 0.4);
+        }
+
+        .brand h1 {
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: var(--text-bright);
+            letter-spacing: -0.02em;
+        }
+
+        .progress-section {
+            margin-bottom: 24px;
+        }
+
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-bright);
+        }
+
+        .progress-bar-container {
+            height: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary) 0%, var(--accent) 100%);
+            width: 0%;
+            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 0 10px rgba(0, 245, 155, 0.3);
+        }
+
+        .stat-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .stat-item {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border);
+            padding: 12px;
+            border-radius: 12px;
             text-align: center;
         }
 
-        h1 {
-            font-size: 2.2rem;
-            margin-bottom: 10px;
-            font-weight: 800;
+        .stat-value {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-bright);
+            display: block;
         }
 
-        .subtitle {
-            font-size: 1rem;
-            opacity: 0.9;
+        .stat-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
         }
 
-        .badge {
-            display: inline-block;
-            background: var(--primary);
-            padding: 6px 16px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            margin-bottom: 15px;
-        }
-
-        .controls {
-            background: #f1f5f9;
-            padding: 15px 40px;
+        .action-buttons {
             display: flex;
-            justify-content: space-between;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: auto;
+        }
+
+        .btn {
+            display: flex;
             align-items: center;
-            border-bottom: 1px solid var(--border);
-            gap: 15px;
-            flex-wrap: wrap;
-        }
-
-        .progress-bar {
-            flex: 1;
-            height: 10px;
-            background: #e2e8f0;
-            border-radius: 20px;
-            overflow: hidden;
-            min-width: 150px;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, var(--primary) 0%, var(--success) 100%);
-            width: 0%;
-            transition: width 0.3s ease;
-        }
-
-        button {
-            background: var(--accent);
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 6px;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px;
+            border-radius: 12px;
+            font-size: 0.875rem;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.2s;
-            font-size: 0.85rem;
+            border: 1px solid var(--border);
+            text-decoration: none;
         }
 
-        button:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 10px rgba(61, 133, 247, 0.3);
+        .btn-primary {
+            background: var(--primary);
+            color: var(--bg-dark);
+            border: none;
         }
 
-        .content {
-            padding: 30px;
+        .btn-primary:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 245, 155, 0.3);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-bright);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--text-main);
+        }
+
+        /* Main Content */
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
         }
 
         .section {
-            margin-bottom: 35px;
-            border-left: 4px solid var(--primary);
-            padding-left: 15px;
+            scroll-margin-top: 24px;
         }
 
-        h2 {
-            font-size: 1.4rem;
-            color: var(--text-heading);
-            margin-bottom: 15px;
-        }
-
-        .checklist {
-            list-style: none;
-        }
-
-        .checklist-item {
-            margin-bottom: 15px;
-            background: #f8fafc;
-            border-radius: 10px;
-            border: 1px solid var(--border);
-            overflow: hidden;
-        }
-
-        .item-header {
+        .section-header {
+            margin-bottom: 20px;
             display: flex;
             align-items: center;
-            padding: 12px 15px;
-            background: #fff;
-            border-bottom: 1px solid var(--border);
+            gap: 12px;
         }
 
-        .checklist-item.checked .item-header {
-            background: #ecfdf5;
+        .section-header h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-bright);
         }
 
-        .checklist-item input[type="checkbox"] {
-            width: 20px;
-            height: 20px;
-            margin-right: 12px;
+        .section-number {
+            width: 32px;
+            height: 32px;
+            background: rgba(0, 245, 155, 0.1);
+            color: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.875rem;
+        }
+
+        .checklist-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .item-card {
+            background: rgba(30, 41, 59, 0.4);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .item-card.checked {
+            border-color: var(--primary);
+            background: rgba(0, 245, 155, 0.03);
+        }
+
+        .item-card-header {
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
             cursor: pointer;
+            user-select: none;
         }
 
-        .checklist-item label {
+        .custom-checkbox {
+            width: 24px;
+            height: 24px;
+            border: 2px solid var(--border);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+
+        .item-card.checked .custom-checkbox {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .custom-checkbox::after {
+            content: '✓';
+            color: var(--bg-dark);
+            font-weight: 900;
+            display: none;
+        }
+
+        .item-card.checked .custom-checkbox::after {
+            display: block;
+        }
+
+        .item-title {
+            font-size: 1rem;
             font-weight: 600;
-            font-size: 0.95rem;
-            cursor: pointer;
-            color: var(--text-heading);
+            color: var(--text-bright);
+            flex: 1;
         }
 
-        .v-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1px;
-            background: var(--border);
-        }
-
-        .v-cell {
-            background: #f8fafc;
-            padding: 10px 15px;
-        }
-
-        .v-label {
+        .item-status {
             font-size: 0.75rem;
             font-weight: 700;
-            color: #64748b;
             text-transform: uppercase;
-            margin-bottom: 5px;
+            padding: 4px 8px;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .item-card.checked .item-status {
+            background: rgba(0, 245, 155, 0.2);
+            color: var(--primary);
+        }
+
+        .item-body {
+            padding: 0 20px 20px 60px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .code-block-wrapper {
+            position: relative;
+        }
+
+        .code-label {
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--text-main);
+            margin-bottom: 6px;
             display: block;
+        }
+
+        .code-container {
+            position: relative;
+            background: #000;
+            border-radius: 12px;
+            padding: 12px;
+            border: 1px solid var(--border);
         }
 
         code {
             font-family: 'JetBrains Mono', monospace;
-            display: block;
-            background: #1e293b;
-            color: #f8fafc;
-            padding: 8px;
-            border-radius: 5px;
             font-size: 0.8rem;
+            color: #4ade80;
+            white-space: pre-wrap;
             word-break: break-all;
         }
 
+        .copy-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            padding: 4px 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            font-size: 0.7rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .copy-btn:hover {
+            background: var(--primary);
+            color: var(--bg-dark);
+        }
+
         .result-code {
-            background: #f1f5f9;
-            color: #0f172a;
+            color: var(--text-bright);
+        }
+
+        .note {
+            grid-column: span 2;
+            background: rgba(56, 189, 248, 0.1);
+            border-left: 3px solid var(--accent);
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            color: var(--accent);
+        }
+
+        .tutorial-card {
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.1), rgba(0, 245, 155, 0.05));
+            border: 1px solid var(--primary);
+            border-radius: 20px;
+            padding: 24px;
+            margin-bottom: 32px;
+        }
+
+        .ip-example-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-top: 20px;
+        }
+
+        .ip-box {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 12px;
+            border-radius: 12px;
             border: 1px solid var(--border);
         }
 
+        .ip-box strong {
+            color: var(--primary);
+            display: block;
+            margin-bottom: 4px;
+            font-size: 0.9rem;
+        }
+
+        .ip-box span {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+        }
+
         footer {
-            background: #f8fafc;
-            padding: 20px;
+            margin-top: 40px;
+            padding: 24px;
             text-align: center;
             border-top: 1px solid var(--border);
-            font-size: 0.85rem;
-            color: #64748b;
+            font-size: 0.875rem;
+        }
+
+        @media (max-width: 900px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                position: static;
+                height: auto;
+            }
+
+            .item-body {
+                grid-template-columns: 1fr;
+                padding-left: 20px;
+            }
+
+            .note {
+                grid-column: span 1;
+            }
         }
 
         @media print {
+
+            .sidebar,
+            .copy-btn,
+            .action-buttons,
+            .brand-logo {
+                display: none;
+            }
+
             body {
                 background: white;
+                color: black;
                 padding: 0;
             }
 
             .container {
+                display: block;
+            }
+
+            .glass-card,
+            .item-card {
+                background: white;
+                border: 1px solid #ddd;
                 box-shadow: none;
-                border-radius: 0;
+                margin-bottom: 20px;
             }
 
-            .controls {
-                display: none;
-            }
-
-            .checklist-item {
-                break-inside: avoid;
+            .item-title,
+            h2,
+            h1 {
+                color: black;
             }
 
             code {
-                background: #f1f5f9 !important;
-                color: black !important;
-                border: 1px solid #ccc;
+                color: #333;
+                background: #f5f5f5;
             }
         }
     </style>
@@ -252,455 +484,530 @@
 
 <body>
 
-    <div class="container">
-        <header>
-            <span class="badge">DOKUMEN TEKNIS v1.3</span>
-            <h1>🚀 Checklist Verifikasi CockroachDB</h1>
-            <p class="subtitle">Panduan Command & Hasil Ekspektasi untuk Tim Operasional</p>
-        </header>
-
-        <div class="controls">
-            <div class="progress-text"><span id="progressCount">0/0</span> Done</div>
-            <div class="progress-bar">
-                <div class="progress-fill" id="progressFill"></div>
-            </div>
-            <button onclick="saveProgress()">💾 Save</button>
-            <button style="background: #64748b;" onclick="window.print()">🖨️ Print</button>
-            <button style="background: #dc2626;" onclick="resetAll()">🔄 Reset</button>
-        </div>
-
-        <div class="content">
-            <!-- OS SECTION -->
-            <div class="section">
-                <h2>1️⃣ Optimasi Operating System</h2>
-                <div class="checklist">
-                    <!-- Item 1 -->
-                    <div class="checklist-item" id="item_os1">
-                        <div class="item-header">
-                            <input type="checkbox" id="os1" onchange="updateProgress()">
-                            <label for="os1">Auto-detect OS & Architektur</label>
-                        </div>
-                        <div class="v-grid">
-                            <div class="v-cell">
-                                <span class="v-label">Command to Verify</span>
-                                <code>bash scripts/setup_os.sh</code>
-                            </div>
-                            <div class="v-cell">
-                                <span class="v-label">Expected Result</span>
-                                <code class="result-code">Detected OS: ubuntu (22.04)<br>Detected Arch: x86_64</code>
-                            </div>
-                        </div>
+    <div class="container" id="app">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="glass-card">
+                <div class="brand">
+                    <div class="brand-logo">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#020617" stroke-width="3"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="m14 7 3 3-3 3" />
+                            <path d="m10 11-3-3 3-3" />
+                            <path d="m9 22 3-3 3 3" />
+                            <path d="m9 2 3 3 3-3" />
+                        </svg>
                     </div>
-
-                    <!-- Item 2 -->
-                    <div class="checklist-item" id="item_os2">
-                        <div class="item-header">
-                            <input type="checkbox" id="os2" onchange="updateProgress()">
-                            <label for="os2">Time Synchronization (NTP)</label>
-                        </div>
-                        <div class="v-grid">
-                            <div class="v-cell">
-                                <span class="v-label">Command to Verify</span>
-                                <code>timedatectl status</code>
-                            </div>
-                            <div class="v-cell">
-                                <span class="v-label">Expected Result</span>
-                                <code class="result-code">System clock synchronized: yes<br>NTP service: active</code>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Item 3 -->
-                    <div class="checklist-item" id="item_os3">
-                        <div class="item-header">
-                            <input type="checkbox" id="os3" onchange="updateProgress()">
-                            <label for="os3">Kernel: vm.swappiness = 10</label>
-                        </div>
-                        <div class="v-grid">
-                            <div class="v-cell">
-                                <span class="v-label">Command to Verify</span>
-                                <code>sysctl vm.swappiness</code>
-                            </div>
-                            <div class="v-cell">
-                                <span class="v-label">Expected Result</span>
-                                <code class="result-code">vm.swappiness = 10</code>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Item 4 -->
-                    <div class="checklist-item" id="item_os4">
-                        <div class="item-header">
-                            <input type="checkbox" id="os4" onchange="updateProgress()">
-                            <label for="os4">File Descriptor Limit (nofile)</label>
-                        </div>
-                        <div class="v-grid">
-                            <div class="v-cell">
-                                <span class="v-label">Command to Verify</span>
-                                <code>sudo -u cockroach bash -c 'ulimit -n'</code>
-                            </div>
-                            <div class="v-cell">
-                                <span class="v-label">Expected Result</span>
-                                <code class="result-code">100000</code>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Item 5 -->
-                    <div class="checklist-item" id="item_os5">
-                        <div class="item-header">
-                            <input type="checkbox" id="os5" onchange="updateProgress()">
-                            <label for="os5">Swap Disabled</label>
-                        </div>
-                        <div class="v-grid">
-                            <div class="v-cell">
-                                <span class="v-label">Command to Verify</span>
-                                <code>free -h</code>
-                            </div>
-                            <div class="v-cell">
-                                <span class="v-label">Expected Result</span>
-                                <code class="result-code">Swap: 0B (atau sangat kecil)</code>
-                            </div>
-                        </div>
-                    </div>
+                    <h1>CockroachDB <br>Deployment</h1>
                 </div>
-            </div>
 
-            <!-- DB SECTION -->
-            <div class="section">
-                <h2>2️⃣ CockroachDB Installation</h2>
-
-                <!-- Tutorial Box -->
-                <div
-                    style="background: linear-gradient(135deg, #e0f2fe 0%, #dbeafe 100%); border: 2px solid #3b82f6; border-radius: 12px; padding: 20px; margin-bottom: 20px;">
-                    <h3 style="color: #1e40af; margin-bottom: 15px; font-size: 1.1rem;">📘 Panduan Konfigurasi IP
-                        Cluster</h3>
-
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
-                        <div
-                            style="background: white; padding: 12px; border-radius: 8px; border-left: 4px solid #10b981;">
-                            <strong style="color: #059669;">--advertise-addr</strong>
-                            <p style="font-size: 0.85rem; margin-top: 5px;">IP dari server <strong>yang sedang
-                                    diinstall</strong>. Ini adalah IP yang akan diumumkan ke node lain.</p>
-                        </div>
-                        <div
-                            style="background: white; padding: 12px; border-radius: 8px; border-left: 4px solid #f59e0b;">
-                            <strong style="color: #d97706;">--join</strong>
-                            <p style="font-size: 0.85rem; margin-top: 5px;">IP dari <strong>SEMUA node dalam
-                                    cluster</strong>, dipisahkan koma. Sama di semua node!</p>
-                        </div>
+                <div class="progress-section">
+                    <div class="progress-label">
+                        <span>Overall Progress</span>
+                        <span id="progressPercent">0%</span>
                     </div>
-
-                    <div
-                        style="background: #1e293b; color: #f8fafc; padding: 15px; border-radius: 8px; font-family: 'JetBrains Mono', monospace; font-size: 0.8rem;">
-                        <div style="color: #94a3b8; margin-bottom: 8px;"># Contoh Setup 3 Node</div>
-                        <div style="margin-bottom: 5px;"><span style="color: #fbbf24;">Node 1:</span>
-                            advertise-addr=<span style="color: #4ade80;">192.168.64.2</span></div>
-                        <div style="margin-bottom: 5px;"><span style="color: #fbbf24;">Node 2:</span>
-                            advertise-addr=<span style="color: #4ade80;">192.168.64.3</span></div>
-                        <div style="margin-bottom: 5px;"><span style="color: #fbbf24;">Node 3:</span>
-                            advertise-addr=<span style="color: #4ade80;">192.168.64.4</span></div>
-                        <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #475569;">
-                            <span style="color: #fb923c;">Semua Node:</span> join=<span
-                                style="color: #60a5fa;">192.168.64.2,192.168.64.3,192.168.64.4</span>
-                        </div>
-                    </div>
-
-                    <div
-                        style="background: #fef3c7; padding: 10px; border-radius: 6px; margin-top: 12px; font-size: 0.85rem;">
-                        <strong>💡 Tip:</strong> Jika baru setup 1 node, masukkan IP node itu saja dulu. Nanti bisa
-                        diubah di <code
-                            style="display: inline; padding: 2px 6px;">/etc/systemd/system/cockroach.service</code>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar-fill" id="progressFill"></div>
                     </div>
                 </div>
 
-                <div class="checklist">
-                    <!-- Run Install Script Item -->
-                    <div class="checklist-item">
-                        <div class="item-header">
-                            <input type="checkbox" id="db_run" onchange="updateProgress()">
-                            <label for="db_run">Jalankan Script Instalasi CockroachDB</label>
-                        </div>
-                        <div class="v-grid">
-                            <div class="v-cell">
-                                <span class="v-label">Command (Jalankan di setiap node)</span>
-                                <code>cd ~/cockroachdb-installer<br>bash scripts/setup_cockroach.sh</code>
-                            </div>
-                            <div class="v-cell">
-                                <span class="v-label">Expected Result</span>
-                                <code
-                                    class="result-code">✅ CockroachDB Installation Complete!<br>✅ Systemd service created successfully</code>
-                            </div>
-                        </div>
+                <div class="stat-grid">
+                    <div class="stat-item">
+                        <span class="stat-value" id="countDone">0</span>
+                        <span class="stat-label">Verified</span>
                     </div>
+                    <div class="stat-item">
+                        <span class="stat-value" id="countTotal">0</span>
+                        <span class="stat-label">Tasks</span>
+                    </div>
+                </div>
 
-                    <!-- IP Config Item -->
-                    <div class="checklist-item">
-                        <div class="item-header">
-                            <input type="checkbox" id="db0" onchange="updateProgress()">
-                            <label for="db0">Konfigurasi IP Cluster (advertise-addr & join)</label>
+                <div class="action-buttons">
+                    <button class="btn btn-primary" onclick="saveProgress()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2.5">
+                            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+                            <polyline points="17 21 17 13 7 13 7 21" />
+                            <polyline points="7 3 7 8 15 8" />
+                        </svg>
+                        Save Progress
+                    </button>
+                    <button class="btn btn-secondary" onclick="window.print()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2.5">
+                            <polyline points="6 9 6 2 18 2 18 9" />
+                            <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
+                            <rect x="6" y="14" width="12" height="8" />
+                        </svg>
+                        Export to PDF
+                    </button>
+                    <button class="btn btn-secondary" style="color: var(--danger)" onclick="resetAll()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2.5">
+                            <path d="M3 6h18" />
+                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                        </svg>
+                        Reset All
+                    </button>
+                </div>
+            </div>
+
+            <div class="glass-card" style="padding: 16px;">
+                <h3
+                    style="font-size: 0.8rem; text-transform: uppercase; margin-bottom: 12px; color: var(--text-bright)">
+                    Live Status</h3>
+                <div style="font-size: 0.85rem;">
+                    <p>Current Node Health: <span style="color: var(--success)">Healthy</span></p>
+                    <p style="margin-top: 8px;">Architecture: <span id="displayArch">aarch64</span></p>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+
+            <!-- SECTION 1: OS -->
+            <section id="section_os" class="section">
+                <div class="section-header">
+                    <div class="section-number">01</div>
+                    <h2>Optimasi Operating System</h2>
+                </div>
+
+                <div class="checklist-grid">
+                    <!-- OS Task 1 -->
+                    <div class="item-card" data-id="os_detect">
+                        <div class="item-card-header" onclick="toggleCheck(this)">
+                            <div class="custom-checkbox"></div>
+                            <span class="item-title">Inisialisasi & Deteksi OS</span>
+                            <span class="item-status">Pending</span>
                         </div>
-                        <div class="v-grid">
-                            <div class="v-cell">
-                                <span class="v-label">Saat Instalasi (Script akan bertanya)</span>
-                                <code>IP Node ini (advertise-addr): 192.168.64.2<br>IP semua nodes (join): 192.168.64.2,192.168.64.3,192.168.64.4</code>
+                        <div class="item-body">
+                            <div class="code-block-wrapper">
+                                <span class="code-label">Verifikasi Command</span>
+                                <div class="code-container">
+                                    <code>bash scripts/setup_os.sh</code>
+                                    <button class="copy-btn">Copy</button>
+                                </div>
                             </div>
-                            <div class="v-cell">
-                                <span class="v-label">Verifikasi di Service File</span>
-                                <code>grep -E "(advertise|join)" /etc/systemd/system/cockroach.service</code>
-                                <div class="note" style="margin-top:5px; padding:5px; font-size:0.8rem;">
-                                    <strong>Hasil:</strong> Harus menampilkan --advertise-addr dan --join dengan IP yang
-                                    benar
+                            <div class="code-block-wrapper">
+                                <span class="code-label">Ekspektasi Hasil</span>
+                                <div class="code-container">
+                                    <code class="result-code">Detected OS: ubuntu (24.04)
+Detected Arch: aarch64</code>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="checklist-item">
-                        <div class="item-header">
-                            <input type="checkbox" id="db1" onchange="updateProgress()">
-                            <label for="db1">Versi & Arsitektur Binary</label>
+                    <!-- OS Task 2 -->
+                    <div class="item-card" data-id="os_ntp">
+                        <div class="item-card-header" onclick="toggleCheck(this)">
+                            <div class="custom-checkbox"></div>
+                            <span class="item-title">Sinkronisasi Waktu (NTP)</span>
+                            <span class="item-status">Pending</span>
                         </div>
-                        <div class="v-grid">
-                            <div class="v-cell">
-                                <span class="v-label">Command</span>
-                                <code>cockroach version | grep "Build Tag"</code>
+                        <div class="item-body">
+                            <div class="code-block-wrapper">
+                                <span class="code-label">Verifikasi Command</span>
+                                <div class="code-container">
+                                    <code>timedatectl status</code>
+                                    <button class="copy-btn">Copy</button>
+                                </div>
                             </div>
-                            <div class="v-cell">
-                                <span class="v-label">Result</span>
-                                <code class="result-code">Build Tag: v23.1.11</code>
+                            <div class="code-block-wrapper">
+                                <span class="code-label">Ekspektasi Hasil</span>
+                                <div class="code-container">
+                                    <code class="result-code">System clock synchronized: yes
+NTP service: active</code>
+                                </div>
                             </div>
+                            <div class="note">Tanpa NTP yang sinkron, cluster CockroachDB bisa mengalami error "Clock
+                                Offset Too Large".</div>
                         </div>
                     </div>
 
-                    <div class="checklist-item">
-                        <div class="item-header">
-                            <input type="checkbox" id="db2" onchange="updateProgress()">
-                            <label for="db2">Memory Allocation (Cache & SQL)</label>
+                    <!-- OS Task 3 -->
+                    <div class="item-card" data-id="os_swap">
+                        <div class="item-card-header" onclick="toggleCheck(this)">
+                            <div class="custom-checkbox"></div>
+                            <span class="item-title">Kernel Tuning & Swap</span>
+                            <span class="item-status">Pending</span>
                         </div>
-                        <div class="v-grid">
-                            <div class="v-cell">
-                                <span class="v-label">Command (Must be Started)</span>
-                                <code>sudo systemctl start cockroach<br>ps aux | grep cockroach | grep -v grep</code>
+                        <div class="item-body">
+                            <div class="code-block-wrapper">
+                                <span class="code-label">Check Swappiness</span>
+                                <div class="code-container">
+                                    <code>sysctl vm.swappiness</code>
+                                    <button class="copy-btn">Copy</button>
+                                </div>
                             </div>
-                            <div class="v-cell">
-                                <span class="v-label">Result</span>
-                                <code class="result-code">--cache=512MiB --max-sql-memory=512MiB</code>
-                                <div class="note" style="margin-top:5px; padding:5px; font-size:0.8rem;">
-                                    <strong>Troubleshoot:</strong> Jika tidak muncul, jalankan
-                                    <code>journalctl -u cockroach -n 50</code> untuk melihat error logs.
+                            <div class="code-block-wrapper">
+                                <span class="code-label">Ekspektasi Hasil</span>
+                                <div class="code-container">
+                                    <code class="result-code">vm.swappiness = 10
+Swap: 0B</code>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 2: COCKROACHDB -->
+            <section id="section_db" class="section">
+                <div class="section-header">
+                    <div class="section-number">02</div>
+                    <h2>CockroachDB Engine Setup</h2>
+                </div>
+
+                <div class="tutorial-card">
+                    <h3
+                        style="color: var(--text-bright); margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--primary)"
+                            stroke-width="2.5">
+                            <circle cx="12" cy="12" r="10" />
+                            <line x1="12" y1="16" x2="12" y2="12" />
+                            <line x1="12" y1="8" x2="12.01" y2="8" />
+                        </svg>
+                        Panduan Parameter IP Cluster
+                    </h3>
+                    <p style="font-size: 0.9rem; opacity: 0.8">Masukkan IP ini saat diminta oleh script interaktif.</p>
+
+                    <div class="ip-example-grid">
+                        <div class="ip-box">
+                            <strong>Advertise Address</strong>
+                            <span>IP Server Ini Sendiri</span>
+                        </div>
+                        <div class="ip-box" style="grid-column: span 2">
+                            <strong>Join Full List (Semua Node)</strong>
+                            <span style="color: var(--accent)">192.168.2.114, 192.168.2.115, 192.168.2.116</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="checklist-grid">
+                    <!-- DB Task 1 -->
+                    <div class="item-card" data-id="db_install">
+                        <div class="item-card-header" onclick="toggleCheck(this)">
+                            <div class="custom-checkbox"></div>
+                            <span class="item-title">Eksekusi Installer Script</span>
+                            <span class="item-status">Pending</span>
+                        </div>
+                        <div class="item-body">
+                            <div class="code-block-wrapper">
+                                <span class="code-label">Run Script</span>
+                                <div class="code-container">
+                                    <code>bash scripts/setup_cockroach.sh</code>
+                                    <button class="copy-btn">Copy</button>
+                                </div>
+                            </div>
+                            <div class="code-block-wrapper">
+                                <span class="code-label">Verify Installation</span>
+                                <div class="code-container">
+                                    <code>cockroach version | grep "Build Tag"</code>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Start & Enable Service -->
-                    <div class="checklist-item">
-                        <div class="item-header">
-                            <input type="checkbox" id="db3" onchange="updateProgress()">
-                            <label for="db3">Enable & Start CockroachDB Service</label>
+                    <!-- DB Task 2 -->
+                    <div class="item-card" data-id="db_service">
+                        <div class="item-card-header" onclick="toggleCheck(this)">
+                            <div class="custom-checkbox"></div>
+                            <span class="item-title">Start & Enable Service</span>
+                            <span class="item-status">Pending</span>
                         </div>
-                        <div class="v-grid">
-                            <div class="v-cell">
-                                <span class="v-label">Command</span>
-                                <code>sudo systemctl enable --now cockroach</code>
+                        <div class="item-body">
+                            <div class="code-block-wrapper">
+                                <span class="code-label">Active Service</span>
+                                <div class="code-container">
+                                    <code>sudo systemctl enable --now cockroach</code>
+                                    <button class="copy-btn">Copy</button>
+                                </div>
                             </div>
-                            <div class="v-cell">
-                                <span class="v-label">Verifikasi Status</span>
-                                <code>systemctl is-active cockroach</code>
-                                <div class="note" style="margin-top:5px; padding:5px; font-size:0.8rem;">
-                                    <strong>Hasil:</strong> Harus menampilkan "active"
+                            <div class="code-block-wrapper">
+                                <span class="code-label">Service Check</span>
+                                <div class="code-container">
+                                    <code>systemctl is-active cockroach</code>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Init Cluster -->
-                    <div class="checklist-item">
-                        <div class="item-header">
-                            <input type="checkbox" id="db4" onchange="updateProgress()">
-                            <label for="db4">Inisialisasi Cluster (Jalankan SEKALI di Node 1 saja)</label>
+                    <!-- DB Task 3 -->
+                    <div class="item-card" data-id="db_init">
+                        <div class="item-card-header" onclick="toggleCheck(this)">
+                            <div class="custom-checkbox"></div>
+                            <span class="item-title">Initialize Cluster (Node 1)</span>
+                            <span class="item-status">Pending</span>
                         </div>
-                        <div class="v-grid">
-                            <div class="v-cell">
-                                <span class="v-label">Command (Hanya di Node 1)</span>
-                                <code>cockroach init --insecure --host=&lt;IP_NODE_1&gt;</code>
+                        <div class="item-body">
+                            <div class="code-block-wrapper">
+                                <span class="code-label">Run ONLY ONCE</span>
+                                <div class="code-container">
+                                    <code>cockroach init --insecure --host=192.168.2.114</code>
+                                    <button class="copy-btn">Copy</button>
+                                </div>
                             </div>
-                            <div class="v-cell">
-                                <span class="v-label">Expected Result</span>
-                                <code class="result-code">Cluster successfully initialized</code>
-                                <div class="note" style="margin-top:5px; padding:5px; font-size:0.8rem;">
-                                    <strong>⚠️ Penting:</strong> Jalankan ini HANYA SEKALI dari salah satu node setelah
-                                    SEMUA node sudah start!
+                            <div class="code-block-wrapper">
+                                <span class="code-label">Success Message</span>
+                                <div class="code-container">
+                                    <code class="result-code">Cluster successfully initialized</code>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="checklist-item">
-                        <div class="item-header">
-                            <input type="checkbox" id="db5" onchange="updateProgress()">
-                            <label for="db5">Cluster Quorum (3 Nodes)</label>
+                    <!-- DB Task 4 -->
+                    <div class="item-card" data-id="db_status">
+                        <div class="item-card-header" onclick="toggleCheck(this)">
+                            <div class="custom-checkbox"></div>
+                            <span class="item-title">Cek Quorum & Health</span>
+                            <span class="item-status">Pending</span>
                         </div>
-                        <div class="v-grid">
-                            <div class="v-cell">
-                                <span class="v-label">Command</span>
-                                <code>cockroach node status --insecure --host=localhost</code>
+                        <div class="item-body">
+                            <div class="code-block-wrapper">
+                                <span class="code-label">Command Status</span>
+                                <div class="code-container">
+                                    <code>cockroach node status --insecure --host=localhost</code>
+                                    <button class="copy-btn">Copy</button>
+                                </div>
                             </div>
-                            <div class="v-cell">
-                                <span class="v-label">Result</span>
-                                <code
-                                    class="result-code">Menampilkan 3 baris node dengan status 'is_available: true'</code>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- HA SECTION -->
-            <div class="section">
-                <h2>3️⃣ Load Balancing (HAProxy)</h2>
-                <div class="checklist">
-                    <div class="checklist-item">
-                        <div class="item-header">
-                            <input type="checkbox" id="lb1" onchange="updateProgress()">
-                            <label for="lb1">HAProxy Service Status</label>
-                        </div>
-                        <div class="v-grid">
-                            <div class="v-cell">
-                                <span class="v-label">Command</span>
-                                <code>systemctl is-active haproxy</code>
-                            </div>
-                            <div class="v-cell">
-                                <span class="v-label">Result</span>
-                                <code class="result-code">active</code>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="checklist-item">
-                        <div class="item-header">
-                            <input type="checkbox" id="lb2" onchange="updateProgress()">
-                            <label for="lb2">Port Monitoring 26257</label>
-                        </div>
-                        <div class="v-grid">
-                            <div class="v-cell">
-                                <span class="v-label">Command</span>
-                                <code>ss -tlnp | grep 26257</code>
-                            </div>
-                            <div class="v-cell">
-                                <span class="v-label">Result</span>
-                                <code class="result-code">users:(("haproxy",pid=xxx...))</code>
+                            <div class="code-block-wrapper">
+                                <span class="code-label">Requirements</span>
+                                <div class="code-container">
+                                    <code class="result-code">3 nodes active | is_live=true</code>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
+            </section>
 
-            <!-- SQL SECTION -->
-            <div class="section">
-                <h2>4️⃣ SQL Best Practices</h2>
-                <div class="checklist">
-                    <div class="checklist-item">
-                        <div class="item-header">
-                            <input type="checkbox" id="sql1" onchange="updateProgress()">
-                            <label for="sql1">UUID Primary Key Strategy</label>
+            <!-- SECTION 4: ACTIVE-ACTIVE SQL TEST -->
+            <section id="section_active" class="section">
+                <div class="section-header">
+                    <div class="section-number">04</div>
+                    <h2>Active-Active SQL Testing</h2>
+                </div>
+
+                <div class="checklist-grid">
+                    <div class="item-card" data-id="sql_write_n1">
+                        <div class="item-card-header" onclick="toggleCheck(this)">
+                            <div class="custom-checkbox"></div>
+                            <span class="item-title">Write Data via Node 1</span>
+                            <span class="item-status">Pending</span>
                         </div>
-                        <div class="v-grid">
-                            <div class="v-cell">
-                                <span class="v-label">Command</span>
-                                <code>SHOW CREATE TABLE transactions;</code>
+                        <div class="item-body">
+                            <div class="code-block-wrapper">
+                                <span class="code-label">Execute on Node 1 Shell</span>
+                                <div class="code-container">
+                                    <code>CREATE TABLE IF NOT EXISTS cluster_test (id UUID PRIMARY KEY DEFAULT gen_random_uuid(), val TEXT);<br>INSERT INTO cluster_test (val) VALUES ('Data from Node 1');</code>
+                                    <button class="copy-btn">Copy</button>
+                                </div>
                             </div>
-                            <div class="v-cell">
-                                <span class="v-label">Result</span>
-                                <code class="result-code">id UUID PRIMARY KEY DEFAULT gen_random_uuid()</code>
+                            <div class="code-block-wrapper">
+                                <span class="code-label">Expected Result</span>
+                                <div class="code-container">
+                                    <code class="result-code">INSERT 1</code>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="item-card" data-id="sql_read_n2">
+                        <div class="item-card-header" onclick="toggleCheck(this)">
+                            <div class="custom-checkbox"></div>
+                            <span class="item-title">Read/Update Data via Node 2</span>
+                            <span class="item-status">Pending</span>
+                        </div>
+                        <div class="item-body">
+                            <div class="code-block-wrapper">
+                                <span class="code-label">Execute on Node 2 Shell</span>
+                                <div class="code-container">
+                                    <code>SELECT * FROM cluster_test;<br>INSERT INTO cluster_test (val) VALUES ('Data from Node 2');</code>
+                                    <button class="copy-btn">Copy</button>
+                                </div>
+                            </div>
+                            <div class="code-block-wrapper">
+                                <span class="code-label">Expected Result</span>
+                                <div class="code-container">
+                                    <code class="result-code">Menampilkan data Node 1 & INSERT data baru sukses</code>
+                                </div>
+                            </div>
+                            <div class="note">Ini membuktikan Cluster Replication bekerja secara instant antar node.
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
+            </section>
 
-            <!-- FAILOVER SECTION -->
-            <div class="section">
-                <h2>5️⃣ Failover Testing</h2>
-                <div class="checklist">
-                    <div class="checklist-item">
-                        <div class="item-header">
-                            <input type="checkbox" id="fail1" onchange="updateProgress()">
-                            <label for="fail1">Single Node Crash Resilience</label>
+            <!-- SECTION 5: HA & FAILOVER -->
+            <section id="section_failover" class="section">
+                <div class="section-header">
+                    <div class="section-number">05</div>
+                    <h2>High Availability & Failover Test</h2>
+                </div>
+
+                <div class="checklist-grid">
+                    <div class="item-card" data-id="fail_sim">
+                        <div class="item-card-header" onclick="toggleCheck(this)">
+                            <div class="custom-checkbox"></div>
+                            <span class="item-title">Simulasi Node Down (Node 2)</span>
+                            <span class="item-status">Pending</span>
                         </div>
-                        <div class="v-grid">
-                            <div class="v-cell">
-                                <span class="v-label">Action</span>
-                                <code>sudo systemctl stop cockroach # pada Node 2</code>
+                        <div class="item-body">
+                            <div class="code-block-wrapper">
+                                <span class="code-label">Stop Service on Node 2</span>
+                                <div class="code-container">
+                                    <code>sudo systemctl stop cockroach</code>
+                                    <button class="copy-btn">Copy</button>
+                                </div>
                             </div>
-                            <div class="v-cell">
-                                <span class="v-label">Expected Result</span>
-                                <code class="result-code">Aplikasi tetap bisa konek via HAProxy ke Node 1 & 3</code>
+                            <div class="code-block-wrapper">
+                                <span class="code-label">Verify on Node 1 Status</span>
+                                <div class="code-container">
+                                    <code>cockroach node status --insecure --host=localhost</code>
+                                </div>
+                            </div>
+                            <div class="note">Status Node 2 harus berubah menjadi 'is_available: false' namun cluster
+                                tetap 'Live'.</div>
+                        </div>
+                    </div>
+
+                    <div class="item-card" data-id="fail_write">
+                        <div class="item-card-header" onclick="toggleCheck(this)">
+                            <div class="custom-checkbox"></div>
+                            <span class="item-title">Write Data During Failover</span>
+                            <span class="item-status">Pending</span>
+                        </div>
+                        <div class="item-body">
+                            <div class="code-block-wrapper">
+                                <span class="code-label">Execute via HAProxy</span>
+                                <div class="code-container">
+                                    <code>cockroach sql --insecure --host=localhost:26257 -e "INSERT INTO cluster_test (val) VALUES ('Written during failover');"</code>
+                                    <button class="copy-btn">Copy</button>
+                                </div>
+                            </div>
+                            <div class="code-block-wrapper">
+                                <span class="code-label">Expected Result</span>
+                                <div class="code-container">
+                                    <code class="result-code">INSERT 1 (Success)</code>
+                                </div>
+                            </div>
+                            <div class="note">HAProxy otomatis mengalihkan traffic ke Node yang survive (Node 1 atau 3).
                             </div>
                         </div>
                     </div>
+
+                    <div class="item-card" data-id="fail_recover">
+                        <div class="item-card-header" onclick="toggleCheck(this)">
+                            <div class="custom-checkbox"></div>
+                            <span class="item-title">Node Recovery & Catch-up</span>
+                            <span class="item-status">Pending</span>
+                        </div>
+                        <div class="item-body">
+                            <div class="code-block-wrapper">
+                                <span class="code-label">Restart Node 2</span>
+                                <div class="code-container">
+                                    <code>sudo systemctl start cockroach</code>
+                                    <button class="copy-btn">Copy</button>
+                                </div>
+                            </div>
+                            <div class="code-block-wrapper">
+                                <span class="code-label">Verify Data on Node 2</span>
+                                <div class="code-container">
+                                    <code>SELECT * FROM cluster_test WHERE val = 'Written during failover';</code>
+                                </div>
+                            </div>
+                            <div class="note">Node 2 akan otomatis melakukan catching up data yang tertinggal saat ia
+                                down.</div>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </div>
+            </section>
+        </main>
 
         <footer>
-            <p><strong>Copyright © 2026 | CockroachDB Operation Guide</strong></p>
-            <p>Dibuat untuk Deployment High-Volume Transaction</p>
+            <p><strong>CockroachDB Deployment Checklist</strong> &copy; 2026</p>
+            <p style="opacity: 0.6; font-size: 0.75rem; margin-top: 5px;">Designed for Enterprise Reliability &
+                Scalability</p>
         </footer>
     </div>
 
+    <!-- Scripts -->
     <script>
-        window.addEventListener('DOMContentLoaded', loadProgress);
-
-        function updateProgress() {
-            const checkboxes = document.querySelectorAll('input[type="checkbox"]');
-            const total = checkboxes.length;
-            let checked = 0;
-
-            checkboxes.forEach(checkbox => {
-                const item = checkbox.closest('.checklist-item');
-                if (checkbox.checked) {
-                    checked++;
-                    item.classList.add('checked');
-                } else {
-                    item.classList.remove('checked');
-                }
+        // Copy functionality
+        document.querySelectorAll('.copy-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const code = btn.previousElementSibling.textContent;
+                navigator.clipboard.writeText(code).then(() => {
+                    const originalText = btn.textContent;
+                    btn.textContent = 'Copied!';
+                    btn.style.background = 'var(--primary)';
+                    btn.style.color = 'var(--bg-dark)';
+                    setTimeout(() => {
+                        btn.textContent = originalText;
+                        btn.style.background = '';
+                        btn.style.color = '';
+                    }, 2000);
+                });
             });
+        });
 
-            const percentage = Math.round((checked / total) * 100);
-            document.getElementById('progressFill').style.width = percentage + '%';
-            document.getElementById('progressCount').textContent = `${checked}/${total}`;
+        // Toggle task
+        function toggleCheck(header) {
+            const card = header.closest('.item-card');
+            const status = card.querySelector('.item-status');
+            card.classList.toggle('checked');
+            status.textContent = card.classList.contains('checked') ? 'Verified' : 'Pending';
+            updateProgress();
+        }
+
+        // Progress calculation
+        function updateProgress() {
+            const total = document.querySelectorAll('.item-card').length;
+            const done = document.querySelectorAll('.item-card.checked').length;
+            const percent = total > 0 ? Math.round((done / total) * 100) : 0;
+
+            document.getElementById('countTotal').textContent = total;
+            document.getElementById('countDone').textContent = done;
+            document.getElementById('progressPercent').textContent = percent + '%';
+            document.getElementById('progressFill').style.width = percent + '%';
             saveProgress();
         }
 
         function saveProgress() {
-            const checkboxes = document.querySelectorAll('input[type="checkbox"]');
             const state = {};
-            checkboxes.forEach(checkbox => {
-                state[checkbox.id] = checkbox.checked;
+            document.querySelectorAll('.item-card').forEach(card => {
+                state[card.dataset.id] = card.classList.contains('checked');
             });
-            localStorage.setItem('cockroachdb_checklist_v1.3', JSON.stringify(state));
+            localStorage.setItem('cockroach_deployment_state', JSON.stringify(state));
         }
 
         function loadProgress() {
-            const saved = localStorage.getItem('cockroachdb_checklist_v1.3');
+            const saved = localStorage.getItem('cockroach_deployment_state');
             if (saved) {
                 const state = JSON.parse(saved);
-                Object.keys(state).forEach(id => {
-                    const checkbox = document.getElementById(id);
-                    if (checkbox) checkbox.checked = state[id];
+                document.querySelectorAll('.item-card').forEach(card => {
+                    if (state[card.dataset.id]) {
+                        card.classList.add('checked');
+                        card.querySelector('.item-status').textContent = 'Verified';
+                    }
                 });
             }
             updateProgress();
         }
 
         function resetAll() {
-            if (confirm('Reset semua progress?')) {
-                localStorage.removeItem('cockroachdb_checklist_v1.3');
+            if (confirm('Hapus semua progress?')) {
+                localStorage.removeItem('cockroach_deployment_state');
                 location.reload();
             }
         }
+
+        document.addEventListener('DOMContentLoaded', loadProgress);
     </script>
 </body>
 
