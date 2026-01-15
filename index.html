@@ -369,7 +369,93 @@
             <!-- DB SECTION -->
             <div class="section">
                 <h2>2️⃣ CockroachDB Installation</h2>
+
+                <!-- Tutorial Box -->
+                <div
+                    style="background: linear-gradient(135deg, #e0f2fe 0%, #dbeafe 100%); border: 2px solid #3b82f6; border-radius: 12px; padding: 20px; margin-bottom: 20px;">
+                    <h3 style="color: #1e40af; margin-bottom: 15px; font-size: 1.1rem;">📘 Panduan Konfigurasi IP
+                        Cluster</h3>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                        <div
+                            style="background: white; padding: 12px; border-radius: 8px; border-left: 4px solid #10b981;">
+                            <strong style="color: #059669;">--advertise-addr</strong>
+                            <p style="font-size: 0.85rem; margin-top: 5px;">IP dari server <strong>yang sedang
+                                    diinstall</strong>. Ini adalah IP yang akan diumumkan ke node lain.</p>
+                        </div>
+                        <div
+                            style="background: white; padding: 12px; border-radius: 8px; border-left: 4px solid #f59e0b;">
+                            <strong style="color: #d97706;">--join</strong>
+                            <p style="font-size: 0.85rem; margin-top: 5px;">IP dari <strong>SEMUA node dalam
+                                    cluster</strong>, dipisahkan koma. Sama di semua node!</p>
+                        </div>
+                    </div>
+
+                    <div
+                        style="background: #1e293b; color: #f8fafc; padding: 15px; border-radius: 8px; font-family: 'JetBrains Mono', monospace; font-size: 0.8rem;">
+                        <div style="color: #94a3b8; margin-bottom: 8px;"># Contoh Setup 3 Node</div>
+                        <div style="margin-bottom: 5px;"><span style="color: #fbbf24;">Node 1:</span>
+                            advertise-addr=<span style="color: #4ade80;">192.168.64.2</span></div>
+                        <div style="margin-bottom: 5px;"><span style="color: #fbbf24;">Node 2:</span>
+                            advertise-addr=<span style="color: #4ade80;">192.168.64.3</span></div>
+                        <div style="margin-bottom: 5px;"><span style="color: #fbbf24;">Node 3:</span>
+                            advertise-addr=<span style="color: #4ade80;">192.168.64.4</span></div>
+                        <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #475569;">
+                            <span style="color: #fb923c;">Semua Node:</span> join=<span
+                                style="color: #60a5fa;">192.168.64.2,192.168.64.3,192.168.64.4</span>
+                        </div>
+                    </div>
+
+                    <div
+                        style="background: #fef3c7; padding: 10px; border-radius: 6px; margin-top: 12px; font-size: 0.85rem;">
+                        <strong>💡 Tip:</strong> Jika baru setup 1 node, masukkan IP node itu saja dulu. Nanti bisa
+                        diubah di <code
+                            style="display: inline; padding: 2px 6px;">/etc/systemd/system/cockroach.service</code>
+                    </div>
+                </div>
+
                 <div class="checklist">
+                    <!-- Run Install Script Item -->
+                    <div class="checklist-item">
+                        <div class="item-header">
+                            <input type="checkbox" id="db_run" onchange="updateProgress()">
+                            <label for="db_run">Jalankan Script Instalasi CockroachDB</label>
+                        </div>
+                        <div class="v-grid">
+                            <div class="v-cell">
+                                <span class="v-label">Command (Jalankan di setiap node)</span>
+                                <code>cd ~/cockroachdb-installer<br>bash scripts/setup_cockroach.sh</code>
+                            </div>
+                            <div class="v-cell">
+                                <span class="v-label">Expected Result</span>
+                                <code
+                                    class="result-code">✅ CockroachDB Installation Complete!<br>✅ Systemd service created successfully</code>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- IP Config Item -->
+                    <div class="checklist-item">
+                        <div class="item-header">
+                            <input type="checkbox" id="db0" onchange="updateProgress()">
+                            <label for="db0">Konfigurasi IP Cluster (advertise-addr & join)</label>
+                        </div>
+                        <div class="v-grid">
+                            <div class="v-cell">
+                                <span class="v-label">Saat Instalasi (Script akan bertanya)</span>
+                                <code>IP Node ini (advertise-addr): 192.168.64.2<br>IP semua nodes (join): 192.168.64.2,192.168.64.3,192.168.64.4</code>
+                            </div>
+                            <div class="v-cell">
+                                <span class="v-label">Verifikasi di Service File</span>
+                                <code>grep -E "(advertise|join)" /etc/systemd/system/cockroach.service</code>
+                                <div class="note" style="margin-top:5px; padding:5px; font-size:0.8rem;">
+                                    <strong>Hasil:</strong> Harus menampilkan --advertise-addr dan --join dengan IP yang
+                                    benar
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="checklist-item">
                         <div class="item-header">
                             <input type="checkbox" id="db1" onchange="updateProgress()">
@@ -403,6 +489,49 @@
                                 <div class="note" style="margin-top:5px; padding:5px; font-size:0.8rem;">
                                     <strong>Troubleshoot:</strong> Jika tidak muncul, jalankan
                                     <code>journalctl -u cockroach -n 50</code> untuk melihat error logs.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Start & Enable Service -->
+                    <div class="checklist-item">
+                        <div class="item-header">
+                            <input type="checkbox" id="db3" onchange="updateProgress()">
+                            <label for="db3">Enable & Start CockroachDB Service</label>
+                        </div>
+                        <div class="v-grid">
+                            <div class="v-cell">
+                                <span class="v-label">Command</span>
+                                <code>sudo systemctl enable --now cockroach</code>
+                            </div>
+                            <div class="v-cell">
+                                <span class="v-label">Verifikasi Status</span>
+                                <code>systemctl is-active cockroach</code>
+                                <div class="note" style="margin-top:5px; padding:5px; font-size:0.8rem;">
+                                    <strong>Hasil:</strong> Harus menampilkan "active"
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Init Cluster -->
+                    <div class="checklist-item">
+                        <div class="item-header">
+                            <input type="checkbox" id="db4" onchange="updateProgress()">
+                            <label for="db4">Inisialisasi Cluster (Jalankan SEKALI di Node 1 saja)</label>
+                        </div>
+                        <div class="v-grid">
+                            <div class="v-cell">
+                                <span class="v-label">Command (Hanya di Node 1)</span>
+                                <code>cockroach init --insecure --host=&lt;IP_NODE_1&gt;</code>
+                            </div>
+                            <div class="v-cell">
+                                <span class="v-label">Expected Result</span>
+                                <code class="result-code">Cluster successfully initialized</code>
+                                <div class="note" style="margin-top:5px; padding:5px; font-size:0.8rem;">
+                                    <strong>⚠️ Penting:</strong> Jalankan ini HANYA SEKALI dari salah satu node setelah
+                                    SEMUA node sudah start!
                                 </div>
                             </div>
                         </div>
