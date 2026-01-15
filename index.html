@@ -669,19 +669,29 @@ Swap: 0B</code>
                             <line x1="12" y1="16" x2="12" y2="12" />
                             <line x1="12" y1="8" x2="12.01" y2="8" />
                         </svg>
-                        Panduan Parameter IP Cluster
+                        Quick Reference: IP & Login
                     </h3>
-                    <p style="font-size: 0.9rem; opacity: 0.8">Masukkan IP ini saat diminta oleh script interaktif.</p>
 
                     <div class="ip-example-grid">
                         <div class="ip-box">
                             <strong>Advertise Address</strong>
-                            <span>IP Server Ini Sendiri</span>
+                            <span>IP Server Ini</span>
+                        </div>
+                        <div class="ip-box">
+                            <strong>SQL Auth</strong>
+                            <span style="color: var(--warning)">No Password (Insecure)</span>
                         </div>
                         <div class="ip-box" style="grid-column: span 2">
                             <strong>Join Full List (Semua Node)</strong>
                             <span style="color: var(--accent)">192.168.2.114, 192.168.2.115, 192.168.2.116</span>
                         </div>
+                    </div>
+
+                    <div
+                        style="background: rgba(0,0,0,0.3); padding: 12px; border-radius: 8px; margin-top: 15px; border: 1px dashed var(--border);">
+                        <p style="font-size: 0.8rem; color: var(--text-bright);"><strong>Login Command:</strong>
+                            <code>cockroach sql --insecure --host=localhost</code>
+                        </p>
                     </div>
                 </div>
 
@@ -792,6 +802,25 @@ Swap: 0B</code>
                 </div>
 
                 <div class="checklist-grid">
+                    <!-- Login Info Item -->
+                    <div
+                        style="background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border); border-radius: 16px; padding: 15px; margin-bottom: 10px;">
+                        <p
+                            style="font-size: 0.85rem; color: var(--text-bright); display: flex; align-items: center; gap: 8px;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--primary)"
+                                stroke-width="2.5">
+                                <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+                                <polyline points="10 17 15 12 10 7" />
+                                <line x1="15" y1="12" x2="3" y2="12" />
+                            </svg>
+                            <strong>Langkah 1:</strong> Login ke SQL Shell di terminal terlebih dahulu.
+                        </p>
+                        <div class="code-container" style="margin-top: 10px;">
+                            <code>cockroach sql --insecure --host=localhost</code>
+                            <button class="copy-btn">Copy</button>
+                        </div>
+                    </div>
+
                     <div class="item-card" data-id="sql_write_n1">
                         <div class="item-card-header" onclick="toggleCheck(this)">
                             <div class="custom-checkbox"></div>
@@ -800,7 +829,7 @@ Swap: 0B</code>
                         </div>
                         <div class="item-body">
                             <div class="code-block-wrapper">
-                                <span class="code-label">Execute on Node 1 Shell</span>
+                                <span class="code-label">Paste setelah Login di Node 1</span>
                                 <div class="code-container">
                                     <code>CREATE TABLE IF NOT EXISTS cluster_test (id UUID PRIMARY KEY DEFAULT gen_random_uuid(), val TEXT);<br>INSERT INTO cluster_test (val) VALUES ('Data from Node 1');</code>
                                     <button class="copy-btn">Copy</button>
@@ -823,7 +852,7 @@ Swap: 0B</code>
                         </div>
                         <div class="item-body">
                             <div class="code-block-wrapper">
-                                <span class="code-label">Execute on Node 2 Shell</span>
+                                <span class="code-label">Paste setelah Login di Node 2</span>
                                 <div class="code-container">
                                     <code>SELECT * FROM cluster_test;<br>INSERT INTO cluster_test (val) VALUES ('Data from Node 2');</code>
                                     <button class="copy-btn">Copy</button>
@@ -835,8 +864,8 @@ Swap: 0B</code>
                                     <code class="result-code">Menampilkan data Node 1 & INSERT data baru sukses</code>
                                 </div>
                             </div>
-                            <div class="note">Ini membuktikan Cluster Replication bekerja secara instant antar node.
-                            </div>
+                            <div class="note">Ini membuktikan data yang di-write di Node 1 sudah ada di Node 2 secara
+                                instant.</div>
                         </div>
                     </div>
                 </div>
@@ -908,20 +937,45 @@ Swap: 0B</code>
                         </div>
                         <div class="item-body">
                             <div class="code-block-wrapper">
-                                <span class="code-label">Restart Node 2</span>
+                                <span class="code-label">Langkah 1: Restart Node 2</span>
                                 <div class="code-container">
                                     <code>sudo systemctl start cockroach</code>
                                     <button class="copy-btn">Copy</button>
                                 </div>
                             </div>
                             <div class="code-block-wrapper">
-                                <span class="code-label">Verify Data on Node 2</span>
+                                <span class="code-label">Langkah 2: Verifikasi Data di Node 2</span>
                                 <div class="code-container">
-                                    <code>SELECT * FROM cluster_test WHERE val = 'Written during failover';</code>
+                                    <code># Login di Node 2 lalu cek data:<br>SELECT * FROM cluster_test WHERE val = 'Written during failover';</code>
+                                    <button class="copy-btn">Copy</button>
                                 </div>
                             </div>
-                            <div class="note">Node 2 akan otomatis melakukan catching up data yang tertinggal saat ia
-                                down.</div>
+                            <div class="note">Node 2 akan otomatis melakukan 'Catching up' (replikasi ulang) data yang
+                                ia lewatkan saat mati. Jika data 'Written during failover' muncul, berarti sinkronisasi
+                                berhasil.</div>
+                        </div>
+                    </div>
+
+                    <div class="item-card" data-id="fail_final_check">
+                        <div class="item-card-header" onclick="toggleCheck(this)">
+                            <div class="custom-checkbox"></div>
+                            <span class="item-title">Final Integrity Check (Full Sync)</span>
+                            <span class="item-status">Pending</span>
+                        </div>
+                        <div class="item-body">
+                            <div class="code-block-wrapper">
+                                <span class="code-label">Cek Total Rows di Semua Node</span>
+                                <div class="code-container">
+                                    <code>SELECT count(*), val FROM cluster_test GROUP BY val;</code>
+                                    <button class="copy-btn">Copy</button>
+                                </div>
+                            </div>
+                            <div class="code-block-wrapper">
+                                <span class="code-label">Expected Result</span>
+                                <div class="code-container">
+                                    <code class="result-code">Total 3 data berbeda muncul di semua node</code>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
