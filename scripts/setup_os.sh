@@ -27,22 +27,33 @@ echo "Detected Total RAM: $TOTAL_MEM_MB MB"
 case "$OS" in
     ubuntu|debian)
         sudo apt-get update
-        sudo apt-get install -y ntp curl software-properties-common
+        # Don't install ntp - use systemd-timesyncd (default on modern Ubuntu)
+        sudo apt-get install -y curl software-properties-common
         ;;
     centos|rhel|rocky|almalinux)
         sudo yum update -y
-        sudo yum install -y ntp curl bind-utils
+        sudo yum install -y chrony curl bind-utils
         ;;
     *)
         echo "OS $OS not explicitly supported, but will try to continue..."
         ;;
 esac
 
-# 3. Timezone & NTP
+# 3. Timezone & Time Sync
+echo "Configuring timezone and time synchronization..."
 sudo timedatectl set-timezone Asia/Jakarta
-if command -v systemctl >/dev/null; then
-    sudo systemctl enable ntp || sudo systemctl enable chronyd || true
-    sudo systemctl start ntp || sudo systemctl start chronyd || true
+
+# Enable time sync (systemd-timesyncd for Ubuntu/Debian, chronyd for RHEL-based)
+if systemctl list-unit-files | grep -q systemd-timesyncd; then
+    sudo systemctl enable systemd-timesyncd || true
+    sudo systemctl start systemd-timesyncd || true
+    echo "Using systemd-timesyncd for time synchronization"
+elif systemctl list-unit-files | grep -q chronyd; then
+    sudo systemctl enable chronyd || true
+    sudo systemctl start chronyd || true
+    echo "Using chronyd for time synchronization"
+else
+    echo "Warning: No time sync daemon found. Consider installing chrony."
 fi
 
 # 4. Create Database User
