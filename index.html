@@ -578,7 +578,9 @@
                     <div class="item-card" data-id="os_detect">
                         <div class="item-card-header" onclick="toggleCheck(this)">
                             <div class="custom-checkbox"></div>
-                            <span class="item-title">Inisialisasi & Deteksi OS</span>
+                            <span class="item-title">Inisialisasi & Deteksi OS <span
+                                    style="font-size: 0.65rem; background: var(--warning); color: #000; padding: 2px 6px; border-radius: 4px; margin-left: 8px;">EXECUTE
+                                    ON EACH NODE</span></span>
                             <span class="item-status">Pending</span>
                         </div>
                         <div class="item-body">
@@ -603,7 +605,9 @@ Detected Arch: aarch64</code>
                     <div class="item-card" data-id="os_ntp">
                         <div class="item-card-header" onclick="toggleCheck(this)">
                             <div class="custom-checkbox"></div>
-                            <span class="item-title">Sinkronisasi Waktu (NTP)</span>
+                            <span class="item-title">Sinkronisasi Waktu (NTP) <span
+                                    style="font-size: 0.65rem; background: var(--warning); color: #000; padding: 2px 6px; border-radius: 4px; margin-left: 8px;">EXECUTE
+                                    ON EACH NODE</span></span>
                             <span class="item-status">Pending</span>
                         </div>
                         <div class="item-body">
@@ -630,7 +634,9 @@ NTP service: active</code>
                     <div class="item-card" data-id="os_swap">
                         <div class="item-card-header" onclick="toggleCheck(this)">
                             <div class="custom-checkbox"></div>
-                            <span class="item-title">Kernel Tuning & Swap</span>
+                            <span class="item-title">Kernel Tuning & Swap <span
+                                    style="font-size: 0.65rem; background: var(--warning); color: #000; padding: 2px 6px; border-radius: 4px; margin-left: 8px;">EXECUTE
+                                    ON EACH NODE</span></span>
                             <span class="item-status">Pending</span>
                         </div>
                         <div class="item-body">
@@ -700,7 +706,9 @@ Swap: 0B</code>
                     <div class="item-card" data-id="db_install">
                         <div class="item-card-header" onclick="toggleCheck(this)">
                             <div class="custom-checkbox"></div>
-                            <span class="item-title">Eksekusi Installer Script</span>
+                            <span class="item-title">Eksekusi Installer Script <span
+                                    style="font-size: 0.65rem; background: var(--warning); color: #000; padding: 2px 6px; border-radius: 4px; margin-left: 8px;">EXECUTE
+                                    ON EACH NODE</span></span>
                             <span class="item-status">Pending</span>
                         </div>
                         <div class="item-body">
@@ -724,7 +732,9 @@ Swap: 0B</code>
                     <div class="item-card" data-id="db_service">
                         <div class="item-card-header" onclick="toggleCheck(this)">
                             <div class="custom-checkbox"></div>
-                            <span class="item-title">Start & Enable Service</span>
+                            <span class="item-title">Start & Enable Service <span
+                                    style="font-size: 0.65rem; background: var(--warning); color: #000; padding: 2px 6px; border-radius: 4px; margin-left: 8px;">EXECUTE
+                                    ON EACH NODE</span></span>
                             <span class="item-status">Pending</span>
                         </div>
                         <div class="item-body">
@@ -748,7 +758,9 @@ Swap: 0B</code>
                     <div class="item-card" data-id="db_init">
                         <div class="item-card-header" onclick="toggleCheck(this)">
                             <div class="custom-checkbox"></div>
-                            <span class="item-title">Initialize Cluster (Node 1)</span>
+                            <span class="item-title">Initialize Cluster (Node 1) <span
+                                    style="font-size: 0.65rem; background: var(--primary); color: #000; padding: 2px 6px; border-radius: 4px; margin-left: 8px;">RUN
+                                    ON NODE 1 ONLY</span></span>
                             <span class="item-status">Pending</span>
                         </div>
                         <div class="item-body">
@@ -772,7 +784,9 @@ Swap: 0B</code>
                     <div class="item-card" data-id="db_status">
                         <div class="item-card-header" onclick="toggleCheck(this)">
                             <div class="custom-checkbox"></div>
-                            <span class="item-title">Cek Quorum & Health</span>
+                            <span class="item-title">Cek Quorum & Health <span
+                                    style="font-size: 0.65rem; background: var(--primary); color: #000; padding: 2px 6px; border-radius: 4px; margin-left: 8px;">ANY
+                                    NODE / REMOTE</span></span>
                             <span class="item-status">Pending</span>
                         </div>
                         <div class="item-body">
@@ -824,7 +838,9 @@ Swap: 0B</code>
                     <div class="item-card" data-id="sql_write_n1">
                         <div class="item-card-header" onclick="toggleCheck(this)">
                             <div class="custom-checkbox"></div>
-                            <span class="item-title">Write Data via Node 1</span>
+                            <span class="item-title">Write Data via Node 1 <span
+                                    style="font-size: 0.65rem; background: var(--primary); color: #000; padding: 2px 6px; border-radius: 4px; margin-left: 8px;">RUN
+                                    ON NODE 1</span></span>
                             <span class="item-status">Pending</span>
                         </div>
                         <div class="item-body">
@@ -847,7 +863,9 @@ Swap: 0B</code>
                     <div class="item-card" data-id="sql_read_n2">
                         <div class="item-card-header" onclick="toggleCheck(this)">
                             <div class="custom-checkbox"></div>
-                            <span class="item-title">Read/Update Data via Node 2</span>
+                            <span class="item-title">Read/Update Data via Node 2 <span
+                                    style="font-size: 0.65rem; background: var(--primary); color: #000; padding: 2px 6px; border-radius: 4px; margin-left: 8px;">RUN
+                                    ON NODE 2</span></span>
                             <span class="item-status">Pending</span>
                         </div>
                         <div class="item-body">
@@ -882,7 +900,9 @@ Swap: 0B</code>
                     <div class="item-card" data-id="fail_sim">
                         <div class="item-card-header" onclick="toggleCheck(this)">
                             <div class="custom-checkbox"></div>
-                            <span class="item-title">Simulasi Node Down (Node 2)</span>
+                            <span class="item-title">Simulasi Node Down (Node 2) <span
+                                    style="font-size: 0.65rem; background: var(--warning); color: #000; padding: 2px 6px; border-radius: 4px; margin-left: 8px;">RUN
+                                    ON NODE 2</span></span>
                             <span class="item-status">Pending</span>
                         </div>
                         <div class="item-body">
@@ -907,7 +927,9 @@ Swap: 0B</code>
                     <div class="item-card" data-id="fail_write">
                         <div class="item-card-header" onclick="toggleCheck(this)">
                             <div class="custom-checkbox"></div>
-                            <span class="item-title">Write Data During Failover</span>
+                            <span class="item-title">Write Data During Failover <span
+                                    style="font-size: 0.65rem; background: var(--primary); color: #000; padding: 2px 6px; border-radius: 4px; margin-left: 8px;">ANY
+                                    NODE / LB</span></span>
                             <span class="item-status">Pending</span>
                         </div>
                         <div class="item-body">
@@ -932,7 +954,9 @@ Swap: 0B</code>
                     <div class="item-card" data-id="fail_recover">
                         <div class="item-card-header" onclick="toggleCheck(this)">
                             <div class="custom-checkbox"></div>
-                            <span class="item-title">Node Recovery & Catch-up</span>
+                            <span class="item-title">Node Recovery & Catch-up <span
+                                    style="font-size: 0.65rem; background: var(--warning); color: #000; padding: 2px 6px; border-radius: 4px; margin-left: 8px;">RUN
+                                    ON NODE 2</span></span>
                             <span class="item-status">Pending</span>
                         </div>
                         <div class="item-body">
@@ -959,7 +983,9 @@ Swap: 0B</code>
                     <div class="item-card" data-id="fail_final_check">
                         <div class="item-card-header" onclick="toggleCheck(this)">
                             <div class="custom-checkbox"></div>
-                            <span class="item-title">Final Integrity Check (Full Sync)</span>
+                            <span class="item-title">Final Integrity Check (Full Sync) <span
+                                    style="font-size: 0.65rem; background: var(--primary); color: #000; padding: 2px 6px; border-radius: 4px; margin-left: 8px;">ANY
+                                    NODE</span></span>
                             <span class="item-status">Pending</span>
                         </div>
                         <div class="item-body">
@@ -990,7 +1016,9 @@ Swap: 0B</code>
                         <div class="item-card" data-id="opt_pk">
                             <div class="item-card-header" onclick="toggleCheck(this)">
                                 <div class="custom-checkbox"></div>
-                                <span class="item-title">Anti-Hotspot Primary Key (UUID)</span>
+                                <span class="item-title">Anti-Hotspot Primary Key (UUID) <span
+                                        style="font-size: 0.65rem; background: var(--primary); color: #000; padding: 2px 6px; border-radius: 4px; margin-left: 8px;">Concept
+                                        / Global</span></span>
                                 <span class="item-status">Pending</span>
                             </div>
                             <div class="item-body">
@@ -1009,7 +1037,9 @@ Swap: 0B</code>
                         <div class="item-card" data-id="opt_read">
                             <div class="item-card-header" onclick="toggleCheck(this)">
                                 <div class="custom-checkbox"></div>
-                                <span class="item-title">Follower Reads (Scale Performance)</span>
+                                <span class="item-title">Follower Reads (Scale Performance) <span
+                                        style="font-size: 0.65rem; background: var(--primary); color: #000; padding: 2px 6px; border-radius: 4px; margin-left: 8px;">Global
+                                        Capability</span></span>
                                 <span class="item-status">Pending</span>
                             </div>
                             <div class="item-body">
@@ -1028,7 +1058,9 @@ Swap: 0B</code>
                         <div class="item-card" data-id="opt_mon">
                             <div class="item-card-header" onclick="toggleCheck(this)">
                                 <div class="custom-checkbox"></div>
-                                <span class="item-title">Real-time Query Monitoring</span>
+                                <span class="item-title">Real-time Query Monitoring <span
+                                        style="font-size: 0.65rem; background: var(--primary); color: #000; padding: 2px 6px; border-radius: 4px; margin-left: 8px;">ANY
+                                        NODE</span></span>
                                 <span class="item-status">Pending</span>
                             </div>
                             <div class="item-body">
@@ -1036,6 +1068,179 @@ Swap: 0B</code>
                                     <span class="code-label">Cek Query Lambat (&gt;5s)</span>
                                     <div class="code-container">
                                         <code>SELECT query, start, now() - start AS duration<br>FROM crdb_internal.node_queries<br>WHERE now() - start &gt; '5s';</code>
+                                        <button class="copy-btn">Copy</button>
+                                        <button class="copy-btn">Copy</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- SECTION 7: SECURITY HARDENING -->
+                <section id="section_sec" class="section">
+                    <div class="section-header">
+                        <div class="section-number">07</div>
+                        <h2>Security Hardening (Production Ready)</h2>
+                    </div>
+
+                    <div
+                        style="background: rgba(239, 68, 68, 0.1); border: 2px solid var(--danger); border-radius: 16px; padding: 20px; margin-bottom: 20px;">
+                        <h3
+                            style="color: var(--danger); margin-bottom: 10px; display: flex; align-items: center; gap: 8px;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2.5">
+                                <path
+                                    d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                                <line x1="12" y1="9" x2="12" y2="13" />
+                                <line x1="12" y1="17" x2="12.01" y2="17" />
+                            </svg>
+                            PERINGATAN: Mode Insecure untuk Testing Saja
+                        </h3>
+                        <p style="font-size: 0.9rem; opacity: 0.9">Setup saat ini menggunakan <code>--insecure</code>
+                            untuk kemudahan testing. Untuk production, wajib aktifkan TLS/SSL dan user authentication.
+                        </p>
+                    </div>
+
+                    <div class="checklist-grid">
+                        <div class="item-card" data-id="sec_firewall">
+                            <div class="item-card-header" onclick="toggleCheck(this)">
+                                <div class="custom-checkbox"></div>
+                                <span class="item-title">Firewall IP Whitelisting <span
+                                        style="font-size: 0.65rem; background: var(--warning); color: #000; padding: 2px 6px; border-radius: 4px; margin-left: 8px;">EXECUTE
+                                        ON EACH NODE</span></span>
+                                <span class="item-status">Pending</span>
+                            </div>
+                            <div class="item-body">
+                                <div class="code-block-wrapper">
+                                    <span class="code-label">Batasi Akses SQL (Port 26257)</span>
+                                    <div class="code-container">
+                                        <code># Aktifkan hanya dari IP cluster & aplikasi:<br>sudo ufw delete allow 26257/tcp<br>sudo ufw allow from 192.168.2.0/24 to any port 26257 proto tcp</code>
+                                        <button class="copy-btn">Copy</button>
+                                    </div>
+                                </div>
+                                <div class="code-block-wrapper">
+                                    <span class="code-label">Tutup Web UI dari Public (Port 8080)</span>
+                                    <div class="code-container">
+                                        <code>sudo ufw delete allow 8080/tcp<br>sudo ufw allow from 192.168.2.0/24 to any port 8080 proto tcp</code>
+                                        <button class="copy-btn">Copy</button>
+                                    </div>
+                                </div>
+                                <div class="note">Ganti 192.168.2.0/24 dengan subnet internal Anda.
+                                    Jangan expose port database ke internet publik.</div>
+                            </div>
+                        </div>
+
+                        <div class="item-card" data-id="sec_user">
+                            <div class="item-card-header" onclick="toggleCheck(this)">
+                                <div class="custom-checkbox"></div>
+                                <span class="item-title">Create Application User (Non-Root) <span
+                                        style="font-size: 0.65rem; background: var(--primary); color: #000; padding: 2px 6px; border-radius: 4px; margin-left: 8px;">Global
+                                        (Run Once)</span></span>
+                                <span class="item-status">Pending</span>
+                            </div>
+                            <div class="item-body">
+                                <div class="code-block-wrapper">
+                                    <span class="code-label">Buat User Aplikasi</span>
+                                    <div class="code-container">
+                                        <code>CREATE USER appuser;<br>ALTER USER appuser PASSWORD 'strong_password_here';<br>GRANT ALL ON DATABASE defaultdb TO appuser;</code>
+                                        <button class="copy-btn">Copy</button>
+                                    </div>
+                                </div>
+                                <div class="note">Jangan gunakan user 'root' untuk koneksi aplikasi.
+                                    Batasi privilege sesuai prinsip least privilege.</div>
+                            </div>
+                        </div>
+
+                        <div class="item-card" data-id="sec_audit">
+                            <div class="item-card-header" onclick="toggleCheck(this)">
+                                <div class="custom-checkbox"></div>
+                                <span class="item-title">Enable Audit Logging <span
+                                        style="font-size: 0.65rem; background: var(--primary); color: #000; padding: 2px 6px; border-radius: 4px; margin-left: 8px;">Global
+                                        (Run Once)</span></span>
+                                <span class="item-status">Pending</span>
+                            </div>
+                            <div class="item-body">
+                                <div class="code-block-wrapper">
+                                    <span class="code-label">Aktifkan SQL Audit Log</span>
+                                    <div class="code-container">
+                                        <code>SET CLUSTER SETTING sql.log.all_statements.enabled = true;</code>
+                                        <button class="copy-btn">Copy</button>
+                                    </div>
+                                </div>
+                                <div class="code-block-wrapper">
+                                    <span class="code-label">Verifikasi Log Location <span
+                                            style="color: var(--warning)">(Check on EACH Node)</span></span>
+                                    <div class="code-container">
+                                        <code>ls -lh /var/log/cockroach/cockroach-sql-audit.log</code>
+                                        <button class="copy-btn">Copy</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="item-card" data-id="sec_rate">
+                            <div class="item-card-header" onclick="toggleCheck(this)">
+                                <div class="custom-checkbox"></div>
+                                <span class="item-title">Rate Limiting & Connection Pooling <span
+                                        style="font-size: 0.65rem; background: var(--primary); color: #000; padding: 2px 6px; border-radius: 4px; margin-left: 8px;">Global
+                                        (Run Once)</span></span>
+                                <span class="item-status">Pending</span>
+                            </div>
+                            <div class="item-body">
+                                <div class="code-block-wrapper">
+                                    <span class="code-label">Set Max Connections per Node</span>
+                                    <div class="code-container">
+                                        <code>SET CLUSTER SETTING server.max_connections_per_gateway = 500;</code>
+                                        <button class="copy-btn">Copy</button>
+                                    </div>
+                                </div>
+                                <div class="note">Gunakan connection pooling di aplikasi (HikariCP,
+                                    pgBouncer-like) untuk menghindari connection exhaustion.</div>
+                            </div>
+                        </div>
+
+                        <div class="item-card" data-id="sec_backup">
+                            <div class="item-card-header" onclick="toggleCheck(this)">
+                                <div class="custom-checkbox"></div>
+                                <span class="item-title">Automated Backup Strategy <span
+                                        style="font-size: 0.65rem; background: var(--primary); color: #000; padding: 2px 6px; border-radius: 4px; margin-left: 8px;">Global
+                                        (Run Once)</span></span>
+                                <span class="item-status">Pending</span>
+                            </div>
+                            <div class="item-body">
+                                <div class="code-block-wrapper">
+                                    <span class="code-label">Full Backup Command</span>
+                                    <div class="code-container">
+                                        <code>cockroach sql --insecure -e "BACKUP INTO 'nodelocal://1/backup' AS OF SYSTEM TIME '-10s';"</code>
+                                        <button class="copy-btn">Copy</button>
+                                    </div>
+                                </div>
+                                <div class="note">Setup cronjob untuk backup regular. Untuk production,
+                                    gunakan cloud storage (S3/GCS) sebagai backup destination.</div>
+                            </div>
+                        </div>
+
+                        <div class="item-card" data-id="sec_monitor">
+                            <div class="item-card-header" onclick="toggleCheck(this)">
+                                <div class="custom-checkbox"></div>
+                                <span class="item-title">Security Monitoring Checklist <span
+                                        style="font-size: 0.65rem; background: var(--primary); color: #000; padding: 2px 6px; border-radius: 4px; margin-left: 8px;">Global
+                                        (Run Once)</span></span>
+                                <span class="item-status">Pending</span>
+                            </div>
+                            <div class="item-body">
+                                <div class="code-block-wrapper">
+                                    <span class="code-label">Monitor Failed Login Attempts</span>
+                                    <div class="code-container">
+                                        <code>SELECT * FROM system.eventlog WHERE "eventType" = 'client_authentication_failed' ORDER BY timestamp DESC LIMIT 20;</code>
+                                        <button class="copy-btn">Copy</button>
+                                    </div>
+                                </div>
+                                <div class="code-block-wrapper">
+                                    <span class="code-label">Check Active Sessions</span>
+                                    <div class="code-container">
+                                        <code>SHOW SESSIONS;</code>
                                         <button class="copy-btn">Copy</button>
                                     </div>
                                 </div>
