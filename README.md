@@ -22,7 +22,7 @@ Automated installation and optimization scripts for **CockroachDB** on resource-
 
 ## 📦 What's Included
 
-```
+```text
 cockroachdb-installer/
 ├── README.md                   # This file
 ├── RELEASE_NOTES.md            # Version history & changelog
@@ -154,7 +154,7 @@ This project is licensed under the MIT License.
 
 ## 👤 Author
 
-**Adhi Nugroho**
+### Adhi Nugroho
 
 - GitHub: [@adhinugroho1711](https://github.com/adhinugroho1711)
 

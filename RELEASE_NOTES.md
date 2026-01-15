@@ -2,14 +2,14 @@
 
 ## Version 1.2 (2026-01-15)
 
-### 🎉 New Features
+### New Features v1.2 (🎉)
 
 - **Interactive HTML Checklist**: Complete web-based progress tracker with auto-save functionality
 - **Auto-Detection Enhancement**: Full support for ARM64 (Apple Silicon, AWS Graviton)
 - **HAProxy Interactive Prompt**: No more hardcoded localhost, script asks for node IPs
 - **Consolidated Documentation**: All guides merged into single interactive experience
 
-### 🛠️ Improvements
+### Improvements v1.2 (🛠️)
 
 - **Error Handling**: Enhanced download failure detection in installation scripts
 - **Variable Safety**: Added fallback for `$VERSION_ID` in non-standard distros
@@ -31,13 +31,13 @@
 
 ## Version 1.1 (2026-01-14)
 
-### 🎉 New Features
+### New Features v1.1 (🎉)
 
 - **Dynamic Memory Calculation**: Auto-allocates 25% RAM for cache and SQL memory
 - **Multi-OS Support**: Detects and configures Ubuntu/Debian vs RHEL/Rocky/AlmaLinux
 - **Firewall Auto-Config**: Supports both UFW (Debian-based) and firewalld (RHEL-based)
 
-### 🛠️ Improvements
+### Improvements v1.1 (🛠️)
 
 - Kernel tuning optimized for OLTP workload
 - File descriptor limits set to 100,000

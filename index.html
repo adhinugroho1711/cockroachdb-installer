@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SOP CockroachDB - Checklist Interaktif</title>
+    <title>SOP CockroachDB - Checklist Interaktif & Verifikasi</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
@@ -33,7 +33,7 @@
 
         body {
             font-family: 'Inter', sans-serif;
-            line-height: 1.7;
+            line-height: 1.6;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: var(--text-main);
             padding: 40px 20px;
@@ -41,7 +41,7 @@
         }
 
         .container {
-            max-width: 1000px;
+            max-width: 1100px;
             margin: 0 auto;
             background: var(--card-bg);
             border-radius: 24px;
@@ -54,17 +54,16 @@
             color: white;
             padding: 40px;
             text-align: center;
-            position: relative;
         }
 
         h1 {
-            font-size: 2.5rem;
+            font-size: 2.2rem;
             margin-bottom: 10px;
             font-weight: 800;
         }
 
         .subtitle {
-            font-size: 1.1rem;
+            font-size: 1rem;
             opacity: 0.9;
         }
 
@@ -73,14 +72,14 @@
             background: var(--primary);
             padding: 6px 16px;
             border-radius: 20px;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             font-weight: 600;
             margin-bottom: 15px;
         }
 
         .controls {
             background: #f1f5f9;
-            padding: 20px 40px;
+            padding: 15px 40px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -91,11 +90,11 @@
 
         .progress-bar {
             flex: 1;
-            height: 12px;
+            height: 10px;
             background: #e2e8f0;
             border-radius: 20px;
             overflow: hidden;
-            min-width: 200px;
+            min-width: 150px;
         }
 
         .progress-fill {
@@ -105,62 +104,37 @@
             transition: width 0.3s ease;
         }
 
-        .progress-text {
-            font-weight: 600;
-            color: var(--text-heading);
-            white-space: nowrap;
-        }
-
         button {
             background: var(--accent);
             color: white;
             border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
+            padding: 8px 16px;
+            border-radius: 6px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.2s;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
         }
 
         button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(61, 133, 247, 0.4);
-        }
-
-        button.secondary {
-            background: #64748b;
-        }
-
-        button.danger {
-            background: #dc2626;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(61, 133, 247, 0.3);
         }
 
         .content {
-            padding: 40px;
+            padding: 30px;
         }
 
         .section {
-            margin-bottom: 40px;
+            margin-bottom: 35px;
             border-left: 4px solid var(--primary);
-            padding-left: 20px;
+            padding-left: 15px;
         }
 
         h2 {
-            font-size: 1.6rem;
+            font-size: 1.4rem;
             color: var(--text-heading);
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        h2::before {
-            content: '';
-            width: 8px;
-            height: 8px;
-            background: var(--primary);
-            border-radius: 50%;
+            margin-bottom: 15px;
         }
 
         .checklist {
@@ -168,73 +142,86 @@
         }
 
         .checklist-item {
-            display: flex;
-            align-items: flex-start;
-            padding: 15px;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
             background: #f8fafc;
-            border-radius: 8px;
-            transition: all 0.2s;
-            border: 2px solid transparent;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            overflow: hidden;
         }
 
-        .checklist-item:hover {
-            background: #f1f5f9;
-            border-color: var(--primary);
+        .item-header {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            background: #fff;
+            border-bottom: 1px solid var(--border);
         }
 
-        .checklist-item.checked {
+        .checklist-item.checked .item-header {
             background: #ecfdf5;
-            border-color: var(--success);
         }
 
         .checklist-item input[type="checkbox"] {
-            width: 22px;
-            height: 22px;
+            width: 20px;
+            height: 20px;
+            margin-right: 12px;
             cursor: pointer;
-            margin-right: 15px;
-            flex-shrink: 0;
-            margin-top: 2px;
         }
 
         .checklist-item label {
-            cursor: pointer;
-            flex: 1;
+            font-weight: 600;
             font-size: 0.95rem;
+            cursor: pointer;
+            color: var(--text-heading);
         }
 
-        .checklist-item.checked label {
-            color: var(--success);
-            font-weight: 500;
+        .v-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1px;
+            background: var(--border);
+        }
+
+        .v-cell {
+            background: #f8fafc;
+            padding: 10px 15px;
+        }
+
+        .v-label {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #64748b;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+            display: block;
         }
 
         code {
             font-family: 'JetBrains Mono', monospace;
+            display: block;
             background: #1e293b;
             color: #f8fafc;
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-size: 0.85em;
+            padding: 8px;
+            border-radius: 5px;
+            font-size: 0.8rem;
+            word-break: break-all;
         }
 
-        .note {
-            background: #fef9c3;
-            border-left: 4px solid #facc15;
-            padding: 15px;
-            margin: 15px 0;
-            border-radius: 4px;
-            font-size: 0.9rem;
+        .result-code {
+            background: #f1f5f9;
+            color: #0f172a;
+            border: 1px solid var(--border);
         }
 
         footer {
             background: #f8fafc;
-            padding: 30px;
+            padding: 20px;
             text-align: center;
             border-top: 1px solid var(--border);
+            font-size: 0.85rem;
             color: #64748b;
         }
 
-        /* Print Styles */
         @media print {
             body {
                 background: white;
@@ -246,24 +233,18 @@
                 border-radius: 0;
             }
 
-            header {
-                background: white;
-                color: black;
-                border-bottom: 2px solid #000;
-            }
-
             .controls {
                 display: none;
             }
 
             .checklist-item {
-                page-break-inside: avoid;
-                border: 1px solid #ccc;
+                break-inside: avoid;
             }
 
-            .checklist-item input[type="checkbox"] {
-                -webkit-appearance: checkbox;
-                appearance: checkbox;
+            code {
+                background: #f1f5f9 !important;
+                color: black !important;
+                border: 1px solid #ccc;
             }
         }
     </style>
@@ -273,256 +254,270 @@
 
     <div class="container">
         <header>
-            <span class="badge">DOKUMEN INTERAKTIF v1.2</span>
-            <h1>🚀 SOP CockroachDB</h1>
-            <p class="subtitle">Checklist Instalasi, Optimasi & Migrasi - Production Ready</p>
+            <span class="badge">DOKUMEN TEKNIS v1.3</span>
+            <h1>🚀 Checklist Verifikasi CockroachDB</h1>
+            <p class="subtitle">Panduan Command & Hasil Ekspektasi untuk Tim Operasional</p>
         </header>
 
         <div class="controls">
-            <div class="progress-text">
-                <span id="progressCount">0/0</span> Selesai
-            </div>
+            <div class="progress-text"><span id="progressCount">0/0</span> Done</div>
             <div class="progress-bar">
                 <div class="progress-fill" id="progressFill"></div>
             </div>
-            <button onclick="saveProgress()">💾 Save Progress</button>
-            <button class="secondary" onclick="window.print()">🖨️ Print</button>
-            <button class="danger" onclick="resetAll()">🔄 Reset All</button>
+            <button onclick="saveProgress()">💾 Save</button>
+            <button style="background: #64748b;" onclick="window.print()">🖨️ Print</button>
+            <button style="background: #dc2626;" onclick="resetAll()">🔄 Reset</button>
         </div>
 
         <div class="content">
-            <!-- SECTION 1 -->
+            <!-- OS SECTION -->
             <div class="section">
-                <h2>1️⃣ Optimasi Operating System (Per Node)</h2>
-                <ul class="checklist">
-                    <li class="checklist-item">
-                        <input type="checkbox" id="os1" onchange="updateProgress()">
-                        <label for="os1">Auto-detect OS & Arch berhasil (jalankan <code>bash setup_os.sh</code>)</label>
-                    </li>
-                    <li class="checklist-item">
-                        <input type="checkbox" id="os2" onchange="updateProgress()">
-                        <label for="os2">Time sync aktif (<code>timedatectl status</code> menunjukkan
-                            synchronized)</label>
-                    </li>
-                    <li class="checklist-item">
-                        <input type="checkbox" id="os3" onchange="updateProgress()">
-                        <label for="os3">Kernel parameter <code>vm.swappiness = 10</code> terkonfigurasi</label>
-                    </li>
-                    <li class="checklist-item">
-                        <input type="checkbox" id="os4" onchange="updateProgress()">
-                        <label for="os4">File descriptor limit <code>nofile = 100000</code> untuk user cockroach</label>
-                    </li>
-                    <li class="checklist-item">
-                        <input type="checkbox" id="os5" onchange="updateProgress()">
-                        <label for="os5">Swap dinonaktifkan (<code>free -h</code> menunjukkan swap = 0)</label>
-                    </li>
-                    <li class="checklist-item">
-                        <input type="checkbox" id="os6" onchange="updateProgress()">
-                        <label for="os6">Firewall port 26257 (SQL) dan 8080 (Web UI) terbuka</label>
-                    </li>
-                </ul>
-            </div>
+                <h2>1️⃣ Optimasi Operating System</h2>
+                <div class="checklist">
+                    <!-- Item 1 -->
+                    <div class="checklist-item" id="item_os1">
+                        <div class="item-header">
+                            <input type="checkbox" id="os1" onchange="updateProgress()">
+                            <label for="os1">Auto-detect OS & Architektur</label>
+                        </div>
+                        <div class="v-grid">
+                            <div class="v-cell">
+                                <span class="v-label">Command to Verify</span>
+                                <code>bash scripts/setup_os.sh</code>
+                            </div>
+                            <div class="v-cell">
+                                <span class="v-label">Expected Result</span>
+                                <code class="result-code">Detected OS: ubuntu (22.04)<br>Detected Arch: x86_64</code>
+                            </div>
+                        </div>
+                    </div>
 
-            <!-- SECTION 2 -->
-            <div class="section">
-                <h2>2️⃣ CockroachDB Setup</h2>
-                <ul class="checklist">
-                    <li class="checklist-item">
-                        <input type="checkbox" id="db1" onchange="updateProgress()">
-                        <label for="db1">Binary sesuai arsitektur (ARM64/x86_64) terinstall di
-                            <code>/usr/local/bin</code></label>
-                    </li>
-                    <li class="checklist-item">
-                        <input type="checkbox" id="db2" onchange="updateProgress()">
-                        <label for="db2">Memory tuning dinamis aktif (25% cache, 25% SQL memory)</label>
-                    </li>
-                    <li class="checklist-item">
-                        <input type="checkbox" id="db3" onchange="updateProgress()">
-                        <label for="db3">Systemd service configured dengan <code>Restart=always</code></label>
-                    </li>
-                    <li class="checklist-item">
-                        <input type="checkbox" id="db4" onchange="updateProgress()">
-                        <label for="db4">Parameter <code>--join</code> dan <code>--advertise-addr</code> di-update
-                            dengan IP real</label>
-                    </li>
-                    <li class="checklist-item">
-                        <input type="checkbox" id="db5" onchange="updateProgress()">
-                        <label for="db5">Cluster init berhasil
-                            (<code>cockroach init --insecure --host=&lt;IP&gt;</code>)</label>
-                    </li>
-                    <li class="checklist-item">
-                        <input type="checkbox" id="db6" onchange="updateProgress()">
-                        <label for="db6">Ownership folder data benar (user cockroach)</label>
-                    </li>
-                </ul>
-            </div>
+                    <!-- Item 2 -->
+                    <div class="checklist-item" id="item_os2">
+                        <div class="item-header">
+                            <input type="checkbox" id="os2" onchange="updateProgress()">
+                            <label for="os2">Time Synchronization (NTP)</label>
+                        </div>
+                        <div class="v-grid">
+                            <div class="v-cell">
+                                <span class="v-label">Command to Verify</span>
+                                <code>timedatectl status</code>
+                            </div>
+                            <div class="v-cell">
+                                <span class="v-label">Expected Result</span>
+                                <code class="result-code">System clock synchronized: yes<br>NTP service: active</code>
+                            </div>
+                        </div>
+                    </div>
 
-            <!-- SECTION 3 -->
-            <div class="section">
-                <h2>3️⃣ Load Balancing & High Availability</h2>
-                <ul class="checklist">
-                    <li class="checklist-item">
-                        <input type="checkbox" id="lb1" onchange="updateProgress()">
-                        <label for="lb1">HAProxy terinstall dan running</label>
-                    </li>
-                    <li class="checklist-item">
-                        <input type="checkbox" id="lb2" onchange="updateProgress()">
-                        <label for="lb2">Health check TCP aktif untuk port 26257</label>
-                    </li>
-                    <li class="checklist-item">
-                        <input type="checkbox" id="lb3" onchange="updateProgress()">
-                        <label for="lb3">IP semua node CockroachDB terdaftar di
-                            <code>/etc/haproxy/haproxy.cfg</code></label>
-                    </li>
-                    <li class="checklist-item">
-                        <input type="checkbox" id="lb4" onchange="updateProgress()">
-                        <label for="lb4">HAProxy stats accessible di <code>http://&lt;IP&gt;:8081</code></label>
-                    </li>
-                </ul>
-            </div>
+                    <!-- Item 3 -->
+                    <div class="checklist-item" id="item_os3">
+                        <div class="item-header">
+                            <input type="checkbox" id="os3" onchange="updateProgress()">
+                            <label for="os3">Kernel: vm.swappiness = 10</label>
+                        </div>
+                        <div class="v-grid">
+                            <div class="v-cell">
+                                <span class="v-label">Command to Verify</span>
+                                <code>sysctl vm.swappiness</code>
+                            </div>
+                            <div class="v-cell">
+                                <span class="v-label">Expected Result</span>
+                                <code class="result-code">vm.swappiness = 10</code>
+                            </div>
+                        </div>
+                    </div>
 
-            <!-- SECTION 4 -->
-            <div class="section">
-                <h2>4️⃣ Optimasi Transaksi & Schema SQL</h2>
-                <ul class="checklist">
-                    <li class="checklist-item">
-                        <input type="checkbox" id="sql1" onchange="updateProgress()">
-                        <label for="sql1">Primary key menggunakan UUID (bukan SERIAL/BIGSERIAL)</label>
-                    </li>
-                    <li class="checklist-item">
-                        <input type="checkbox" id="sql2" onchange="updateProgress()">
-                        <label for="sql2">Aplikasi support batching (100-500 row per transaksi)</label>
-                    </li>
-                    <li class="checklist-item">
-                        <input type="checkbox" id="sql3" onchange="updateProgress()">
-                        <label for="sql3">Retry logic untuk error <code>40001</code> (Serialization Failure)
-                            aktif</label>
-                    </li>
-                    <li class="checklist-item">
-                        <input type="checkbox" id="sql4" onchange="updateProgress()">
-                        <label for="sql4">Follower reads (<code>AS OF SYSTEM TIME</code>) untuk query analytics</label>
-                    </li>
-                    <li class="checklist-item">
-                        <input type="checkbox" id="sql5" onchange="updateProgress()">
-                        <label for="sql5">Index dibuat sesuai pola query paling sering</label>
-                    </li>
-                </ul>
-            </div>
+                    <!-- Item 4 -->
+                    <div class="checklist-item" id="item_os4">
+                        <div class="item-header">
+                            <input type="checkbox" id="os4" onchange="updateProgress()">
+                            <label for="os4">File Descriptor Limit (nofile)</label>
+                        </div>
+                        <div class="v-grid">
+                            <div class="v-cell">
+                                <span class="v-label">Command to Verify</span>
+                                <code>sudo -u cockroach bash -c 'ulimit -n'</code>
+                            </div>
+                            <div class="v-cell">
+                                <span class="v-label">Expected Result</span>
+                                <code class="result-code">100000</code>
+                            </div>
+                        </div>
+                    </div>
 
-            <!-- SECTION 5 -->
-            <div class="section">
-                <h2>5️⃣ Monitoring & Health Check</h2>
-                <ul class="checklist">
-                    <li class="checklist-item">
-                        <input type="checkbox" id="mon1" onchange="updateProgress()">
-                        <label for="mon1">Web UI accessible di <code>http://&lt;IP&gt;:8080</code></label>
-                    </li>
-                    <li class="checklist-item">
-                        <input type="checkbox" id="mon2" onchange="updateProgress()">
-                        <label for="mon2">Under-replicated ranges = 0 (cek di dashboard)</label>
-                    </li>
-                    <li class="checklist-item">
-                        <input type="checkbox" id="mon3" onchange="updateProgress()">
-                        <label for="mon3">P95 Latency terpantau dan dalam batas wajar (&lt;100ms)</label>
-                    </li>
-                    <li class="checklist-item">
-                        <input type="checkbox" id="mon4" onchange="updateProgress()">
-                        <label for="mon4">SQL Statement Statistics aktif untuk analisis slow query</label>
-                    </li>
-                </ul>
-            </div>
-
-            <!-- SECTION 6 -->
-            <div class="section">
-                <h2>6️⃣ Migrasi dari PostgreSQL</h2>
-                <div class="note">
-                    <strong>Catatan:</strong> Section ini opsional jika Anda menginstall fresh (bukan migrasi).
+                    <!-- Item 5 -->
+                    <div class="checklist-item" id="item_os5">
+                        <div class="item-header">
+                            <input type="checkbox" id="os5" onchange="updateProgress()">
+                            <label for="os5">Swap Disabled</label>
+                        </div>
+                        <div class="v-grid">
+                            <div class="v-cell">
+                                <span class="v-label">Command to Verify</span>
+                                <code>free -h</code>
+                            </div>
+                            <div class="v-cell">
+                                <span class="v-label">Expected Result</span>
+                                <code class="result-code">Swap: 0B (atau sangat kecil)</code>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <ul class="checklist">
-                    <li class="checklist-item">
-                        <input type="checkbox" id="mig1" onchange="updateProgress()">
-                        <label for="mig1"><code>molt schema</code> tidak menemukan blocking issues</label>
-                    </li>
-                    <li class="checklist-item">
-                        <input type="checkbox" id="mig2" onchange="updateProgress()">
-                        <label for="mig2">Initial sync selesai (<code>molt fetch</code> atau
-                            <code>IMPORT PGDUMP</code>)</label>
-                    </li>
-                    <li class="checklist-item">
-                        <input type="checkbox" id="mig3" onchange="updateProgress()">
-                        <label for="mig3">CDC pipeline running (jika zero-downtime migration)</label>
-                    </li>
-                    <li class="checklist-item">
-                        <input type="checkbox" id="mig4" onchange="updateProgress()">
-                        <label for="mig4"><code>molt verify</code> menunjukkan data identik Postgres vs
-                            CockroachDB</label>
-                    </li>
-                    <li class="checklist-item">
-                        <input type="checkbox" id="mig5" onchange="updateProgress()">
-                        <label for="mig5"><code>ANALYZE</code> dijalankan pada semua tabel hasil migrasi</label>
-                    </li>
-                </ul>
             </div>
 
-            <!-- SECTION 7 -->
+            <!-- DB SECTION -->
             <div class="section">
-                <h2>7️⃣ Pengujian Failover</h2>
-                <ul class="checklist">
-                    <li class="checklist-item">
-                        <input type="checkbox" id="fail1" onchange="updateProgress()">
-                        <label for="fail1">Graceful shutdown test berhasil (node kembali dengan baik)</label>
-                    </li>
-                    <li class="checklist-item">
-                        <input type="checkbox" id="fail2" onchange="updateProgress()">
-                        <label for="fail2">Hard failure test berhasil (HAProxy mengalihkan traffic)</label>
-                    </li>
-                    <li class="checklist-item">
-                        <input type="checkbox" id="fail3" onchange="updateProgress()">
-                        <label for="fail3">Transaksi berlanjut dengan minimal error (retry logic bekerja)</label>
-                    </li>
-                    <li class="checklist-item">
-                        <input type="checkbox" id="fail4" onchange="updateProgress()">
-                        <label for="fail4">Node recovery tanpa data loss atau corruption</label>
-                    </li>
-                </ul>
+                <h2>2️⃣ CockroachDB Installation</h2>
+                <div class="checklist">
+                    <div class="checklist-item">
+                        <div class="item-header">
+                            <input type="checkbox" id="db1" onchange="updateProgress()">
+                            <label for="db1">Versi & Arsitektur Binary</label>
+                        </div>
+                        <div class="v-grid">
+                            <div class="v-cell">
+                                <span class="v-label">Command</span>
+                                <code>cockroach version | grep "Build Tag"</code>
+                            </div>
+                            <div class="v-cell">
+                                <span class="v-label">Result</span>
+                                <code class="result-code">Build Tag: v23.1.11</code>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="checklist-item">
+                        <div class="item-header">
+                            <input type="checkbox" id="db2" onchange="updateProgress()">
+                            <label for="db2">Memory Allocation (Cache & SQL)</label>
+                        </div>
+                        <div class="v-grid">
+                            <div class="v-cell">
+                                <span class="v-label">Command</span>
+                                <code>ps aux | grep cockroach</code>
+                            </div>
+                            <div class="v-cell">
+                                <span class="v-label">Result</span>
+                                <code class="result-code">--cache=512MiB --max-sql-memory=512MiB</code>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="checklist-item">
+                        <div class="item-header">
+                            <input type="checkbox" id="db5" onchange="updateProgress()">
+                            <label for="db5">Cluster Quorum (3 Nodes)</label>
+                        </div>
+                        <div class="v-grid">
+                            <div class="v-cell">
+                                <span class="v-label">Command</span>
+                                <code>cockroach node status --insecure --host=localhost</code>
+                            </div>
+                            <div class="v-cell">
+                                <span class="v-label">Result</span>
+                                <code
+                                    class="result-code">Menampilkan 3 baris node dengan status 'is_available: true'</code>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <!-- SECTION 8 -->
+            <!-- HA SECTION -->
             <div class="section">
-                <h2>8️⃣ Production Readiness</h2>
-                <ul class="checklist">
-                    <li class="checklist-item">
-                        <input type="checkbox" id="prod1" onchange="updateProgress()">
-                        <label for="prod1">TLS aktif (ganti <code>--insecure</code> dengan certificates)</label>
-                    </li>
-                    <li class="checklist-item">
-                        <input type="checkbox" id="prod2" onchange="updateProgress()">
-                        <label for="prod2">RAM minimal 8-16GB per node (untuk production)</label>
-                    </li>
-                    <li class="checklist-item">
-                        <input type="checkbox" id="prod3" onchange="updateProgress()">
-                        <label for="prod3">Storage menggunakan SSD/NVMe (wajib untuk write-heavy)</label>
-                    </li>
-                    <li class="checklist-item">
-                        <input type="checkbox" id="prod4" onchange="updateProgress()">
-                        <label for="prod4">Backup schedule configured (`BACKUP` command atau Enterprise backup)</label>
-                    </li>
-                    <li class="checklist-item">
-                        <input type="checkbox" id="prod5" onchange="updateProgress()">
-                        <label for="prod5">Disaster recovery plan didokumentasikan</label>
-                    </li>
-                </ul>
+                <h2>3️⃣ Load Balancing (HAProxy)</h2>
+                <div class="checklist">
+                    <div class="checklist-item">
+                        <div class="item-header">
+                            <input type="checkbox" id="lb1" onchange="updateProgress()">
+                            <label for="lb1">HAProxy Service Status</label>
+                        </div>
+                        <div class="v-grid">
+                            <div class="v-cell">
+                                <span class="v-label">Command</span>
+                                <code>systemctl is-active haproxy</code>
+                            </div>
+                            <div class="v-cell">
+                                <span class="v-label">Result</span>
+                                <code class="result-code">active</code>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="checklist-item">
+                        <div class="item-header">
+                            <input type="checkbox" id="lb2" onchange="updateProgress()">
+                            <label for="lb2">Port Monitoring 26257</label>
+                        </div>
+                        <div class="v-grid">
+                            <div class="v-cell">
+                                <span class="v-label">Command</span>
+                                <code>ss -tlnp | grep 26257</code>
+                            </div>
+                            <div class="v-cell">
+                                <span class="v-label">Result</span>
+                                <code class="result-code">users:(("haproxy",pid=xxx...))</code>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SQL SECTION -->
+            <div class="section">
+                <h2>4️⃣ SQL Best Practices</h2>
+                <div class="checklist">
+                    <div class="checklist-item">
+                        <div class="item-header">
+                            <input type="checkbox" id="sql1" onchange="updateProgress()">
+                            <label for="sql1">UUID Primary Key Strategy</label>
+                        </div>
+                        <div class="v-grid">
+                            <div class="v-cell">
+                                <span class="v-label">Command</span>
+                                <code>SHOW CREATE TABLE transactions;</code>
+                            </div>
+                            <div class="v-cell">
+                                <span class="v-label">Result</span>
+                                <code class="result-code">id UUID PRIMARY KEY DEFAULT gen_random_uuid()</code>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FAILOVER SECTION -->
+            <div class="section">
+                <h2>5️⃣ Failover Testing</h2>
+                <div class="checklist">
+                    <div class="checklist-item">
+                        <div class="item-header">
+                            <input type="checkbox" id="fail1" onchange="updateProgress()">
+                            <label for="fail1">Single Node Crash Resilience</label>
+                        </div>
+                        <div class="v-grid">
+                            <div class="v-cell">
+                                <span class="v-label">Action</span>
+                                <code>sudo systemctl stop cockroach # pada Node 2</code>
+                            </div>
+                            <div class="v-cell">
+                                <span class="v-label">Expected Result</span>
+                                <code class="result-code">Aplikasi tetap bisa konek via HAProxy ke Node 1 & 3</code>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
         <footer>
-            <p><strong>SOP CockroachDB © 2026</strong></p>
-            <p>Checklist Interaktif - Progress disimpan di Browser LocalStorage</p>
+            <p><strong>Copyright © 2026 | CockroachDB Operation Guide</strong></p>
+            <p>Dibuat untuk Deployment High-Volume Transaction</p>
         </footer>
     </div>
 
     <script>
-        // Load saved progress on page load
         window.addEventListener('DOMContentLoaded', loadProgress);
 
         function updateProgress() {
@@ -543,8 +538,6 @@
             const percentage = Math.round((checked / total) * 100);
             document.getElementById('progressFill').style.width = percentage + '%';
             document.getElementById('progressCount').textContent = `${checked}/${total}`;
-
-            // Auto-save on every change
             saveProgress();
         }
 
@@ -554,43 +547,28 @@
             checkboxes.forEach(checkbox => {
                 state[checkbox.id] = checkbox.checked;
             });
-            localStorage.setItem('cockroachdb_checklist', JSON.stringify(state));
-
-            // Visual feedback
-            const btn = event.target.tagName === 'BUTTON' ? event.target : document.querySelector('button');
-            const originalText = btn.textContent;
-            btn.textContent = '✓ Saved!';
-            setTimeout(() => {
-                btn.textContent = originalText;
-            }, 1500);
+            localStorage.setItem('cockroachdb_checklist_v1.3', JSON.stringify(state));
         }
 
         function loadProgress() {
-            const saved = localStorage.getItem('cockroachdb_checklist');
+            const saved = localStorage.getItem('cockroachdb_checklist_v1.3');
             if (saved) {
                 const state = JSON.parse(saved);
                 Object.keys(state).forEach(id => {
                     const checkbox = document.getElementById(id);
-                    if (checkbox) {
-                        checkbox.checked = state[id];
-                    }
+                    if (checkbox) checkbox.checked = state[id];
                 });
             }
             updateProgress();
         }
 
         function resetAll() {
-            if (confirm('Yakin ingin reset semua progress? Aksi ini tidak dapat dibatalkan.')) {
-                localStorage.removeItem('cockroachdb_checklist');
-                const checkboxes = document.querySelectorAll('input[type="checkbox"]');
-                checkboxes.forEach(checkbox => {
-                    checkbox.checked = false;
-                });
-                updateProgress();
+            if (confirm('Reset semua progress?')) {
+                localStorage.removeItem('cockroachdb_checklist_v1.3');
+                location.reload();
             }
         }
     </script>
-
 </body>
 
 </html>
