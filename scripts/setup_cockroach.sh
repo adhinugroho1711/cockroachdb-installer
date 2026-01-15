@@ -38,13 +38,26 @@ fi
 sudo cp -i cockroach-${VERSION}.${ARCH}/cockroach ${INSTALL_DIR}/
 rm -rf cockroach-${VERSION}.${ARCH}
 
-# 4. Setup Directories
-sudo mkdir -p ${DATA_DIR} ${LOG_DIR}
-if id "cockroach" &>/dev/null; then
-    sudo chown -R cockroach:cockroach ${DATA_DIR} ${LOG_DIR}
+# 4. Create cockroach user if not exists
+if ! id "cockroach" &>/dev/null; then
+    echo "Creating user 'cockroach'..."
+    sudo useradd -m -s /bin/bash cockroach || sudo adduser --disabled-password --gecos "" cockroach
 fi
 
-# 5. Create Systemd Service
+# 5. Setup Directories
+echo "Setting up directories..."
+sudo mkdir -p ${DATA_DIR} ${LOG_DIR}
+sudo chown -R cockroach:cockroach ${DATA_DIR} ${LOG_DIR}
+
+# 6. Verify installation
+echo "Verifying installation..."
+if [ ! -f ${INSTALL_DIR}/cockroach ]; then
+    echo "ERROR: CockroachDB binary not found at ${INSTALL_DIR}/cockroach"
+    exit 1
+fi
+echo "Binary installed successfully: $(${INSTALL_DIR}/cockroach version | grep 'Build Tag')"
+
+# 7. Create Systemd Service
 echo "Creating systemd service..."
 cat <<EOF | sudo tee /etc/systemd/system/cockroach.service
 [Unit]
@@ -73,5 +86,28 @@ EOF
 
 sudo systemctl daemon-reload
 
-echo "CockroachDB Installation & Optimization Complete."
-echo "NOTE: Update --join and --advertise-addr in /etc/systemd/system/cockroach.service before starting."
+# 8. Verify service file
+if [ -f /etc/systemd/system/cockroach.service ]; then
+    echo "✅ Systemd service created successfully"
+else
+    echo "❌ ERROR: Failed to create systemd service file"
+    exit 1
+fi
+
+echo ""
+echo "=============================================="
+echo "CockroachDB Installation Complete!"
+echo "=============================================="
+echo ""
+echo "Next Steps:"
+echo "1. Edit /etc/systemd/system/cockroach.service"
+echo "   - Update --join=<IP_NODE1>,<IP_NODE2>,<IP_NODE3>"
+echo "   - Add --advertise-addr=<THIS_NODE_IP>"
+echo ""
+echo "2. Start the service:"
+echo "   sudo systemctl enable --now cockroach"
+echo ""
+echo "3. Verify it's running:"
+echo "   ps aux | grep cockroach | grep -v grep"
+echo ""
+

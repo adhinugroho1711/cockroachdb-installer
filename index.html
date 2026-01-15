@@ -394,12 +394,16 @@
                         </div>
                         <div class="v-grid">
                             <div class="v-cell">
-                                <span class="v-label">Command</span>
-                                <code>ps aux | grep cockroach</code>
+                                <span class="v-label">Command (Must be Started)</span>
+                                <code>sudo systemctl start cockroach<br>ps aux | grep cockroach | grep -v grep</code>
                             </div>
                             <div class="v-cell">
                                 <span class="v-label">Result</span>
                                 <code class="result-code">--cache=512MiB --max-sql-memory=512MiB</code>
+                                <div class="note" style="margin-top:5px; padding:5px; font-size:0.8rem;">
+                                    <strong>Troubleshoot:</strong> Jika tidak muncul, jalankan
+                                    <code>journalctl -u cockroach -n 50</code> untuk melihat error logs.
+                                </div>
                             </div>
                         </div>
                     </div>
