@@ -28,6 +28,33 @@ SQL_MEM_MIB=$((TOTAL_MEM_MIB * 25 / 100))
 echo "Detected Arch: $ARCH"
 echo "Detected RAM: ${TOTAL_MEM_MIB}MiB"
 echo "Suggested Config: --cache=${CACHE_MIB}MiB --max-sql-memory=${SQL_MEM_MIB}MiB"
+echo ""
+
+# 3. Interactive Cluster Configuration
+echo "=============================================="
+echo "  CLUSTER CONFIGURATION"
+echo "=============================================="
+echo "Masukkan IP untuk konfigurasi cluster."
+echo "Tekan ENTER untuk skip (bisa diubah nanti di systemd service file)."
+echo ""
+
+# Get this node's IP (auto-detect primary interface)
+DEFAULT_IP=$(hostname -I 2>/dev/null | awk '{print $1}')
+if [ -z "$DEFAULT_IP" ]; then
+    DEFAULT_IP="localhost"
+fi
+
+read -p "IP Node ini (advertise-addr) [${DEFAULT_IP}]: " ADVERTISE_ADDR
+ADVERTISE_ADDR=${ADVERTISE_ADDR:-$DEFAULT_IP}
+
+read -p "IP semua nodes (join), pisahkan dengan koma [${ADVERTISE_ADDR}]: " JOIN_ADDRS
+JOIN_ADDRS=${JOIN_ADDRS:-$ADVERTISE_ADDR}
+
+echo ""
+echo "Config Summary:"
+echo "  - Advertise Address: ${ADVERTISE_ADDR}"
+echo "  - Join Addresses: ${JOIN_ADDRS}"
+echo ""
 
 # 3. Download & Install Binary
 echo "Downloading CockroachDB $VERSION for $ARCH..."
@@ -57,7 +84,7 @@ if [ ! -f ${INSTALL_DIR}/cockroach ]; then
 fi
 echo "Binary installed successfully: $(${INSTALL_DIR}/cockroach version | grep 'Build Tag')"
 
-# 7. Create Systemd Service
+# 8. Create Systemd Service
 echo "Creating systemd service..."
 cat <<EOF | sudo tee /etc/systemd/system/cockroach.service
 [Unit]
@@ -75,7 +102,8 @@ ExecStart=${INSTALL_DIR}/cockroach start \
     --max-sql-memory=${SQL_MEM_MIB}MiB \
     --listen-addr=:26257 \
     --http-addr=:8080 \
-    --join=localhost
+    --advertise-addr=${ADVERTISE_ADDR} \
+    --join=${JOIN_ADDRS}
 Restart=always
 RestartSec=10
 LimitNOFILE=100000
@@ -86,7 +114,7 @@ EOF
 
 sudo systemctl daemon-reload
 
-# 8. Verify service file
+# 9. Verify service file
 if [ -f /etc/systemd/system/cockroach.service ]; then
     echo "✅ Systemd service created successfully"
 else
@@ -96,18 +124,24 @@ fi
 
 echo ""
 echo "=============================================="
-echo "CockroachDB Installation Complete!"
+echo "  ✅ CockroachDB Installation Complete!"
 echo "=============================================="
 echo ""
-echo "Next Steps:"
-echo "1. Edit /etc/systemd/system/cockroach.service"
-echo "   - Update --join=<IP_NODE1>,<IP_NODE2>,<IP_NODE3>"
-echo "   - Add --advertise-addr=<THIS_NODE_IP>"
+echo "Configured Settings:"
+echo "  - Advertise Address: ${ADVERTISE_ADDR}"
+echo "  - Join Addresses: ${JOIN_ADDRS}"
+echo "  - Cache: ${CACHE_MIB}MiB"
+echo "  - SQL Memory: ${SQL_MEM_MIB}MiB"
 echo ""
-echo "2. Start the service:"
+echo "Next Steps:"
+echo "1. Start the service:"
 echo "   sudo systemctl enable --now cockroach"
 echo ""
-echo "3. Verify it's running:"
+echo "2. Verify it's running:"
 echo "   ps aux | grep cockroach | grep -v grep"
 echo ""
-
+echo "3. (Optional) Edit config if IPs change:"
+echo "   sudo nano /etc/systemd/system/cockroach.service"
+echo "   sudo systemctl daemon-reload"
+echo "   sudo systemctl restart cockroach"
+echo ""
