@@ -652,6 +652,8 @@
                             Hardening</a></li>
                     <li><a href="#section_migration" class="toc-link"><span class="toc-number">10</span> PostgreSQL
                             Migration</a></li>
+                    <li><a href="#section_multisite" class="toc-link"><span class="toc-number">11</span> Multi-Site
+                            DR</a></li>
                 </ul>
             </div>
 
@@ -1960,6 +1962,244 @@ sudo mv molt /usr/local/bin/</code>
                                 </div>
                                 <div class="note">Memastikan jumlah row dan konten data identik antara Postgres dan
                                     CockroachDB.</div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- SECTION 11: MULTI-SITE DISASTER RECOVERY -->
+                <section id="section_multisite" class="section">
+                    <div class="section-header">
+                        <div class="section-number">11</div>
+                        <h2>Multi-Site Disaster Recovery (2-Site)</h2>
+                    </div>
+
+                    <div
+                        style="background: rgba(99, 102, 241, 0.1); border: 1px solid var(--primary); border-radius: 16px; padding: 15px; margin-bottom: 20px;">
+                        <p style="font-size: 0.9rem; color: var(--text-bright);">
+                            <strong>🌐 Arsitektur 2+2:</strong> Deploy 2 nodes di Site A (Primary) dan 2 nodes di Site B
+                            (DR).
+                            Dokumentasi lengkap tersedia di <a href="./MULTI_SITE_DR.md"
+                                style="color: var(--accent);">MULTI_SITE_DR.md</a>.
+                        </p>
+                    </div>
+
+                    <div class="tutorial-card">
+                        <h3
+                            style="color: var(--text-bright); margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--primary)"
+                                stroke-width="2.5">
+                                <circle cx="12" cy="12" r="10" />
+                                <line x1="12" y1="16" x2="12" y2="12" />
+                                <line x1="12" y1="8" x2="12.01" y2="8" />
+                            </svg>
+                            Topology: 2 Site tanpa Cloud
+                        </h3>
+                        <div class="ip-example-grid">
+                            <div class="ip-box">
+                                <strong>Site A (Primary)</strong>
+                                <span>Node 1, Node 2 + HAProxy</span>
+                            </div>
+                            <div class="ip-box">
+                                <strong>Site B (DR)</strong>
+                                <span>Node 3, Node 4 + HAProxy</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="checklist-grid">
+                        <!-- Task 1: Setup with Locality -->
+                        <div class="item-card" data-id="multisite_setup">
+                            <div class="item-card-header" onclick="toggleCheck(this)">
+                                <div class="custom-checkbox"></div>
+                                <span class="item-title">1. Deploy Nodes dengan Locality <span
+                                        style="font-size: 0.65rem; background: var(--primary); color: #000; padding: 2px 6px; border-radius: 4px; margin-left: 8px;">SETUP</span></span>
+                                <span class="item-status">Pending</span>
+                            </div>
+                            <div class="item-body">
+                                <div class="code-block-wrapper">
+                                    <span class="code-label">Node 1 & 2 (Site A) - Tambahkan flag --locality</span>
+                                    <div class="code-container">
+                                        <code>--locality=site=a,rack=1  # Node 1
+--locality=site=a,rack=2  # Node 2</code>
+                                    </div>
+                                </div>
+                                <div class="code-block-wrapper">
+                                    <span class="code-label">Node 3 & 4 (Site B) - Tambahkan flag --locality</span>
+                                    <div class="code-container">
+                                        <code>--locality=site=b,rack=1  # Node 3
+--locality=site=b,rack=2  # Node 4</code>
+                                    </div>
+                                </div>
+                                <div class="note">Edit file <code>/etc/systemd/system/cockroach.service</code> dan
+                                    tambahkan flag <code>--locality</code> pada ExecStart.</div>
+                            </div>
+                        </div>
+
+                        <!-- Task 2: Replication Preferences -->
+                        <div class="item-card" data-id="multisite_replication">
+                            <div class="item-card-header" onclick="toggleCheck(this)">
+                                <div class="custom-checkbox"></div>
+                                <span class="item-title">2. Set Replication Preferences <span
+                                        style="font-size: 0.65rem; background: var(--accent); color: #000; padding: 2px 6px; border-radius: 4px; margin-left: 8px;">CONFIG</span></span>
+                                <span class="item-status">Pending</span>
+                            </div>
+                            <div class="item-body">
+                                <div class="code-block-wrapper">
+                                    <span class="code-label">Prioritaskan Site A untuk Write Performance</span>
+                                    <div class="code-container">
+                                        <code>ALTER DATABASE defaultdb CONFIGURE ZONE USING 
+  num_replicas = 3,
+  constraints = '{"+site=a": 2, "+site=b": 1}',
+  lease_preferences = '[[+site=a]]';</code>
+                                        <button class="copy-btn">Copy</button>
+                                    </div>
+                                </div>
+                                <div class="note">
+                                    <strong>Penjelasan:</strong><br>
+                                    - <code>num_replicas = 3</code>: Simpan 3 copy data (dari 4 nodes)<br>
+                                    - <code>constraints</code>: 2 replica di Site A, 1 di Site B<br>
+                                    - <code>lease_preferences</code>: Leaseholder (write coordinator) prefer Site A
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Task 3: Failover Runbook -->
+                        <div class="item-card" data-id="multisite_failover">
+                            <div class="item-card-header" onclick="toggleCheck(this)">
+                                <div class="custom-checkbox"></div>
+                                <span class="item-title">3. Runbook: Site A Down Total <span
+                                        style="font-size: 0.65rem; background: var(--danger); color: #fff; padding: 2px 6px; border-radius: 4px; margin-left: 8px;">EMERGENCY</span></span>
+                                <span class="item-status">Pending</span>
+                            </div>
+                            <div class="item-body">
+                                <div class="code-block-wrapper">
+                                    <span class="code-label">Step 1: Spin Up Node 5 Temporary (Site B)</span>
+                                    <div class="code-container">
+                                        <code>cockroach start \
+  --certs-dir=/var/lib/cockroach/certs \
+  --advertise-addr=<NODE5_IP> \
+  --join=<NODE3_IP>,<NODE4_IP> \
+  --locality=site=b,rack=3</code>
+                                        <button class="copy-btn">Copy</button>
+                                    </div>
+                                </div>
+                                <div class="code-block-wrapper">
+                                    <span class="code-label">Step 2: Decommission Node 1 & 2 (Site A yang mati)</span>
+                                    <div class="code-container">
+                                        <code>cockroach node decommission 1 2 \
+  --certs-dir=/var/lib/cockroach/certs \
+  --host=<NODE3_IP></code>
+                                        <button class="copy-btn">Copy</button>
+                                    </div>
+                                </div>
+                                <div class="code-block-wrapper">
+                                    <span class="code-label">Step 3: Update Application Connection String</span>
+                                    <div class="code-container">
+                                        <code># Dari: haproxy-site-a:26257
+# Ke:   haproxy-site-b:26257</code>
+                                    </div>
+                                </div>
+                                <div class="note"
+                                    style="background: rgba(244, 63, 94, 0.1); border-left: 3px solid var(--danger); padding: 10px;">
+                                    <strong>⚠️ Downtime:</strong> ~5-15 menit untuk manual steps. Cluster akan OFFLINE
+                                    sampai Node 5 join dan decommission selesai.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Task 4: Recovery Runbook -->
+                        <div class="item-card" data-id="multisite_recovery">
+                            <div class="item-card-header" onclick="toggleCheck(this)">
+                                <div class="custom-checkbox"></div>
+                                <span class="item-title">4. Runbook: Site A Recovery (Rejoin) <span
+                                        style="font-size: 0.65rem; background: var(--success); color: #000; padding: 2px 6px; border-radius: 4px; margin-left: 8px;">RECOVERY</span></span>
+                                <span class="item-status">Pending</span>
+                            </div>
+                            <div class="item-body">
+                                <div class="code-block-wrapper">
+                                    <span class="code-label">Step 1: Wipe Old Data (Node 1 & 2)</span>
+                                    <div class="code-container">
+                                        <code>sudo systemctl stop cockroach
+sudo rm -rf /var/lib/cockroach/cockroach-data/*
+# JANGAN hapus /var/lib/cockroach/certs/</code>
+                                        <button class="copy-btn">Copy</button>
+                                    </div>
+                                </div>
+                                <div class="code-block-wrapper">
+                                    <span class="code-label">Step 2: Rejoin Node 1 & 2 ke Cluster</span>
+                                    <div class="code-container">
+                                        <code>cockroach start \
+  --certs-dir=/var/lib/cockroach/certs \
+  --advertise-addr=<NODE1_IP> \
+  --join=<NODE3_IP>,<NODE4_IP>,<NODE5_IP> \
+  --locality=site=a,rack=1</code>
+                                        <button class="copy-btn">Copy</button>
+                                    </div>
+                                </div>
+                                <div class="code-block-wrapper">
+                                    <span class="code-label">Step 3: Decommission Node 5 (Temporary)</span>
+                                    <div class="code-container">
+                                        <code>cockroach node decommission 5 \
+  --certs-dir=/var/lib/cockroach/certs \
+  --host=<NODE3_IP></code>
+                                        <button class="copy-btn">Copy</button>
+                                    </div>
+                                </div>
+                                <div class="code-block-wrapper">
+                                    <span class="code-label">Step 4: Restore Replication Preferences</span>
+                                    <div class="code-container">
+                                        <code>ALTER DATABASE defaultdb CONFIGURE ZONE USING 
+  num_replicas = 3,
+  constraints = '{"+site=a": 2, "+site=b": 1}',
+  lease_preferences = '[[+site=a]]';</code>
+                                        <button class="copy-btn">Copy</button>
+                                    </div>
+                                </div>
+                                <div class="note"
+                                    style="background: rgba(99, 102, 241, 0.1); border-left: 3px solid var(--primary); padding: 10px;">
+                                    <strong>✅ Zero Downtime:</strong> Recovery dilakukan saat cluster sudah online di
+                                    Site B. Node 1 & 2 akan mendapat ID baru (misal: Node 6 & 7).
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Task 5: Testing -->
+                        <div class="item-card" data-id="multisite_test">
+                            <div class="item-card-header" onclick="toggleCheck(this)">
+                                <div class="custom-checkbox"></div>
+                                <span class="item-title">5. Test Failover (Controlled) <span
+                                        style="font-size: 0.65rem; background: var(--warning); color: #000; padding: 2px 6px; border-radius: 4px; margin-left: 8px;">TESTING</span></span>
+                                <span class="item-status">Pending</span>
+                            </div>
+                            <div class="item-body">
+                                <div class="code-block-wrapper">
+                                    <span class="code-label">Test 1: Single Node Failure</span>
+                                    <div class="code-container">
+                                        <code>sudo systemctl stop cockroach  # Di Node 1
+# Cluster harus tetap online (3/4 quorum)
+cockroach sql --certs-dir=/var/lib/cockroach/certs --host=<NODE2_IP> -e "SELECT 1;"</code>
+                                        <button class="copy-btn">Copy</button>
+                                    </div>
+                                </div>
+                                <div class="code-block-wrapper">
+                                    <span class="code-label">Test 2: Complete Site Failover</span>
+                                    <div class="code-container">
+                                        <code># Stop Site A
+sudo systemctl stop cockroach  # Node 1
+sudo systemctl stop cockroach  # Node 2
+
+# Follow Runbook Task 3 (Failover)
+# Verify cluster online from Site B
+# Follow Runbook Task 4 (Recovery)</code>
+                                        <button class="copy-btn">Copy</button>
+                                    </div>
+                                </div>
+                                <div class="note">
+                                    <strong>📊 Expected Results:</strong><br>
+                                    - Test 1: Auto-failover dalam ~5-10 detik<br>
+                                    - Test 2: Manual failover ~5-15 menit, recovery zero downtime
+                                </div>
                             </div>
                         </div>
                     </div>
