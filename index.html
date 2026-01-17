@@ -1211,11 +1211,11 @@ SELECT * FROM cluster_test WHERE val = 'Written during failover';</code>
                                     </div>
                                 </div>
                                 <div class="code-block-wrapper">
-                                    <span class="code-label">Expected Output</span>
+                                    <span class="code-label">Expected Output (1GB Server)</span>
                                     <div class="code-container">
-                                        <code class="result-code">Detected: 4GB RAM, 2 CPU
-Profile: STANDARD
-somaxconn: 4096
+                                        <code class="result-code">Detected: 1.0GB RAM, 1 CPU
+Profile: MINIMAL
+somaxconn: 1024
 ✅ Optimization Complete!</code>
                                     </div>
                                 </div>
@@ -1286,8 +1286,9 @@ somaxconn: 4096
                                         <button class="copy-btn">Copy</button>
                                     </div>
                                 </div>
-                                <div class="note">Semua koneksi ke HAProxy akan didistribusikan ke 3 nodes secara
-                                    round-robin. Jika 1 node down, HAProxy otomatis route ke node yang healthy.</div>
+                                <div class="note">HAProxy dikonfigurasi dengan <strong>Simple TCP Check</strong> untuk
+                                    stabilitas maksimal. Traffic akan didistribusikan secara round-robin ke semua node
+                                    healthy.</div>
                             </div>
                         </div>
                     </div>
@@ -1358,9 +1359,10 @@ somaxconn: 4096
                                     <strong>Saat interactive prompt:</strong><br>
                                     - HAProxy IP: <code>localhost</code> (karena satu server)<br>
                                     - Port: <code>26257</code><br>
+                                    - Password: <strong>Kosongkan</strong> jika cluster mode <code>--insecure</code>
+                                    (Auth otomatis menjadi <code>trust</code>)<br>
                                     - Total vCPU cluster: Contoh <code>3</code> (untuk 3 nodes × 1 CPU)<br>
-                                    - Pool size: Auto-calculated = 12 (4 × 3 vCPU)<br>
-                                    - Max client connections: Disesuaikan dengan RAM server
+                                    - Max client connections: Disesuaikan dengan RAM server (Auto-calculated)
                                 </div>
                                 <div class="code-block-wrapper">
                                     <span class="code-label">Verify PgBouncer Status</span>
@@ -1423,12 +1425,11 @@ SHOW STATS;</code>
                                 </div>
                                 <div class="note" style="grid-column: span 2;">
                                     <strong>Key Metrics:</strong><br>
-                                    - <code>cl_waiting</code>: Harus <5 (clients menunggu connection dari pool)<br>
-                                        - <code>sv_active</code>: Harus ≤24 (sesuai pool_size)<br>
-                                        - <code>maxwait</code>: Harus <5s (waktu tunggu maksimal)<br><br>
-                                            Jika <code>cl_waiting</code> tinggi, pertimbangkan increase
-                                            <code>pool_size</code>
-                                            atau scale up CockroachDB cluster.
+                                    - <code>cl_waiting</code>: Harus < 5 (clients menunggu connection dari pool)<br>
+                                        - <code>sv_active</code>: Harus ≤ 12 (sesuai pool_size cluster vCPU 3)<br>
+                                        - <code>maxwait</code>: Harus < 5s (waktu tunggu maksimal)<br><br>
+                                            Jika perbandingan <code>cl_waiting</code> tinggi, pertimbangkan increase
+                                            <code>pool_size</code> atau scale up CockroachDB cluster.
                                 </div>
                             </div>
                         </div>

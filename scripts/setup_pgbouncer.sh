@@ -201,11 +201,11 @@ fi
 sudo chmod 640 /etc/pgbouncer/userlist.txt
 sudo chown postgres:postgres /etc/pgbouncer/userlist.txt 2>/dev/null || true
 
-# 7. Create systemd service (if not exists)
+# 7. Create systemd service (Ensure it's correct)
 PGBOUNCER_BIN=$(which pgbouncer || echo "/usr/sbin/pgbouncer")
-if [ ! -f /etc/systemd/system/pgbouncer.service ]; then
-    echo "Creating systemd service (Path: $PGBOUNCER_BIN)..."
-    cat <<EOF | sudo tee /etc/systemd/system/pgbouncer.service
+echo "Creating/Updating systemd service (Path: $PGBOUNCER_BIN)..."
+
+sudo tee /etc/systemd/system/pgbouncer.service <<EOF
 [Unit]
 Description=PgBouncer Connection Pooler for CockroachDB
 After=network.target
@@ -213,17 +213,22 @@ After=network.target
 [Service]
 Type=forking
 User=postgres
+Group=postgres
+# Ensure runtime directory exists for PID and Sockets
+RuntimeDirectory=pgbouncer
+RuntimeDirectoryMode=0755
 ExecStart=$PGBOUNCER_BIN -d /etc/pgbouncer/pgbouncer.ini
 ExecReload=/bin/kill -HUP \$MAINPID
 KillSignal=SIGINT
 Restart=on-failure
-RestartSec=10
+RestartSec=5
 
 [Install]
 WantedBy=multi-user.target
 EOF
-    sudo systemctl daemon-reload
-fi
+
+sudo systemctl daemon-reload
+
 
 # 8. Skip explicit test as many pgbouncer versions don't support -t
 echo "PgBouncer configuration generated at /etc/pgbouncer/pgbouncer.ini"
