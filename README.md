@@ -122,6 +122,200 @@ Open `index.html` in your browser for detailed step-by-step checklist with progr
 
 ---
 
+## 🌐 Multi-Site Quick Start (2+3 Architecture)
+
+For **2-site disaster recovery** with automatic failover, follow these steps:
+
+### Infrastructure Overview
+
+```
+Site A (Primary):  2 CockroachDB nodes + 1 Load Balancer
+Site B (DR):       3 CockroachDB nodes (2 full + 1 witness) + 1 Load Balancer
+Total:             7 servers
+```
+
+---
+
+### Step 1: Provision Infrastructure
+
+#### **Site A (Primary)**
+```bash
+# CockroachDB Nodes (Full)
+multipass launch lts --name n1 --cpus 2 --memory 4G --disk 20G
+multipass launch lts --name n2 --cpus 2 --memory 4G --disk 20G
+
+# Load Balancer
+multipass launch lts --name lb-a --cpus 1 --memory 1G --disk 10G
+```
+
+#### **Site B (DR)**
+```bash
+# CockroachDB Nodes (Full)
+multipass launch lts --name n3 --cpus 2 --memory 4G --disk 20G
+multipass launch lts --name n4 --cpus 2 --memory 4G --disk 20G
+
+# Witness Node (Lightweight - voting only)
+multipass launch lts --name n5 --cpus 1 --memory 1G --disk 10G
+
+# Load Balancer
+multipass launch lts --name lb-b --cpus 1 --memory 1G --disk 10G
+```
+
+---
+
+### Step 2: Clone Repository (Both Sites)
+
+```bash
+git clone https://github.com/adhinugroho1711/cockroachdb-installer.git
+cd cockroachdb-installer
+```
+
+---
+
+### Step 3: Install CockroachDB
+
+#### **Site A: Node 1 & Node 2**
+```bash
+# On each node (n1, n2)
+bash scripts/setup_os.sh
+bash scripts/setup_cockroach.sh
+```
+
+**Edit `/etc/systemd/system/cockroach.service`:**
+```bash
+# Node 1
+--join=<NODE1_IP>,<NODE2_IP>,<NODE3_IP>,<NODE4_IP>,<NODE5_IP>
+--advertise-addr=<NODE1_IP>
+--locality=site=a,rack=1
+
+# Node 2
+--join=<NODE1_IP>,<NODE2_IP>,<NODE3_IP>,<NODE4_IP>,<NODE5_IP>
+--advertise-addr=<NODE2_IP>
+--locality=site=a,rack=2
+```
+
+#### **Site B: Node 3, 4, 5**
+```bash
+# On each node (n3, n4, n5)
+bash scripts/setup_os.sh
+bash scripts/setup_cockroach.sh
+```
+
+**Edit `/etc/systemd/system/cockroach.service`:**
+```bash
+# Node 3 (Full)
+--join=<NODE1_IP>,<NODE2_IP>,<NODE3_IP>,<NODE4_IP>,<NODE5_IP>
+--advertise-addr=<NODE3_IP>
+--locality=site=b,rack=1
+
+# Node 4 (Full)
+--join=<NODE1_IP>,<NODE2_IP>,<NODE3_IP>,<NODE4_IP>,<NODE5_IP>
+--advertise-addr=<NODE4_IP>
+--locality=site=b,rack=2
+
+# Node 5 (Witness)
+--join=<NODE1_IP>,<NODE2_IP>,<NODE3_IP>,<NODE4_IP>,<NODE5_IP>
+--advertise-addr=<NODE5_IP>
+--locality=site=b,rack=3
+```
+
+---
+
+### Step 4: Start Cluster (All Nodes)
+
+```bash
+# On all nodes (n1, n2, n3, n4, n5)
+sudo systemctl start cockroach
+sudo systemctl enable cockroach
+```
+
+**Initialize cluster (run once from any node):**
+```bash
+cockroach init --certs-dir=/var/lib/cockroach/certs --host=<NODE1_IP>
+```
+
+---
+
+### Step 5: Configure Replication Preferences
+
+```sql
+-- Connect to any node
+cockroach sql --certs-dir=/var/lib/cockroach/certs --host=<NODE1_IP>
+
+-- Set replication preferences
+ALTER DATABASE defaultdb CONFIGURE ZONE USING 
+  num_replicas = 3,
+  constraints = '{"+site=a": 2, "+site=b": 1}',
+  lease_preferences = '[[+site=a]]';
+```
+
+**Explanation:**
+- 2 replicas in Site A (low latency writes)
+- 1 replica in Site B (disaster recovery)
+- Node 5 (witness) only votes, doesn't store data
+
+---
+
+### Step 6: Setup Load Balancers
+
+#### **Site A: LB-A (Primary)**
+```bash
+# On lb-a
+bash scripts/setup_loadbalancer_os.sh
+bash scripts/setup_haproxy.sh
+```
+
+**HAProxy Backend (prioritize local nodes):**
+- Primary: Node 1, Node 2
+- Backup: Node 3, Node 4
+
+#### **Site B: LB-B (Standby)**
+```bash
+# On lb-b
+bash scripts/setup_loadbalancer_os.sh
+bash scripts/setup_haproxy.sh
+```
+
+**HAProxy Backend (prioritize local nodes):**
+- Primary: Node 3, Node 4, Node 5
+- Backup: Node 1, Node 2
+
+---
+
+### Step 7: Application Connection
+
+**Primary (Normal Operation):**
+```
+postgresql://user:pass@lb-a:26257/defaultdb
+```
+
+**Failover (Site A Down):**
+```
+postgresql://user:pass@lb-b:26257/defaultdb
+```
+
+**Best Practice - Multi-Host Connection:**
+```
+postgresql://user:pass@lb-a:26257,lb-b:26257/defaultdb?target_session_attrs=read-write
+```
+
+---
+
+### Step 8: Test Failover
+
+```bash
+# Stop Site A nodes
+sudo systemctl stop cockroach  # On Node 1
+sudo systemctl stop cockroach  # On Node 2
+
+# Verify cluster still online (3/5 quorum from Site B)
+cockroach sql --certs-dir=/var/lib/cockroach/certs --host=<NODE3_IP> -e "SELECT 1;"
+
+# Expected: Success! Automatic failover in ~5-10 seconds
+```
+
+---
+
 ## 📊 Architecture Transition (PostgreSQL → CockroachDB)
 
 | Component             | PostgreSQL Stack          | CockroachDB Stack                  |

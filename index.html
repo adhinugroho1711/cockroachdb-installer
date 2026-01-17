@@ -2012,6 +2012,51 @@ sudo mv molt /usr/local/bin/</code>
                     </div>
 
                     <div class="checklist-grid">
+                        <!-- Task 0: Provision Infrastructure -->
+                        <div class="item-card" data-id="multisite_provision">
+                            <div class="item-card-header" onclick="toggleCheck(this)">
+                                <div class="custom-checkbox"></div>
+                                <span class="item-title">0. Provision Infrastructure (7 Servers) <span
+                                        style="font-size: 0.65rem; background: var(--accent); color: #000; padding: 2px 6px; border-radius: 4px; margin-left: 8px;">INFRA</span></span>
+                                <span class="item-status">Pending</span>
+                            </div>
+                            <div class="item-body">
+                                <div class="code-block-wrapper">
+                                    <span class="code-label">🏢 Site A (Primary) - 3 Servers</span>
+                                    <div class="code-container">
+                                        <code># CockroachDB Nodes (Full)
+multipass launch lts --name n1 --cpus 2 --memory 4G --disk 20G
+multipass launch lts --name n2 --cpus 2 --memory 4G --disk 20G
+
+# Load Balancer
+multipass launch lts --name lb-a --cpus 1 --memory 1G --disk 10G</code>
+                                        <button class="copy-btn">Copy</button>
+                                    </div>
+                                </div>
+                                <div class="code-block-wrapper">
+                                    <span class="code-label">🏢 Site B (DR) - 4 Servers</span>
+                                    <div class="code-container">
+                                        <code># CockroachDB Nodes (Full)
+multipass launch lts --name n3 --cpus 2 --memory 4G --disk 20G
+multipass launch lts --name n4 --cpus 2 --memory 4G --disk 20G
+
+# Witness Node (Lightweight - voting only)
+multipass launch lts --name n5 --cpus 1 --memory 1G --disk 10G
+
+# Load Balancer
+multipass launch lts --name lb-b --cpus 1 --memory 1G --disk 10G</code>
+                                        <button class="copy-btn">Copy</button>
+                                    </div>
+                                </div>
+                                <div class="note">
+                                    <strong>📊 Total Infrastructure:</strong><br>
+                                    - Site A: 2 CockroachDB (full) + 1 LB = 3 servers<br>
+                                    - Site B: 2 CockroachDB (full) + 1 Witness + 1 LB = 4 servers<br>
+                                    - <strong>Grand Total: 7 servers</strong>
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- Task 1: Setup with Locality -->
                         <div class="item-card" data-id="multisite_setup">
                             <div class="item-card-header" onclick="toggleCheck(this)">
@@ -2067,6 +2112,52 @@ sudo mv molt /usr/local/bin/</code>
                                     - <code>constraints</code>: 2 replica di Site A, 1 di Site B (Node 3 atau 4)<br>
                                     - <code>lease_preferences</code>: Leaseholder (write coordinator) prefer Site A<br>
                                     - <strong>Node 5 (witness)</strong>: Hanya untuk voting, tidak menyimpan data
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Task 2a: Setup Load Balancers -->
+                        <div class="item-card" data-id="multisite_loadbalancer">
+                            <div class="item-card-header" onclick="toggleCheck(this)">
+                                <div class="custom-checkbox"></div>
+                                <span class="item-title">2a. Setup Load Balancers (Both Sites) <span
+                                        style="font-size: 0.65rem; background: var(--warning); color: #000; padding: 2px 6px; border-radius: 4px; margin-left: 8px;">LB</span></span>
+                                <span class="item-status">Pending</span>
+                            </div>
+                            <div class="item-body">
+                                <div class="code-block-wrapper">
+                                    <span class="code-label">🏢 Site A: LB-A (Primary) - Prioritas Local Nodes</span>
+                                    <div class="code-container">
+                                        <code># On lb-a server
+bash scripts/setup_loadbalancer_os.sh
+bash scripts/setup_haproxy.sh
+
+# Saat interactive prompt:
+# - Node IPs: <NODE1_IP>,<NODE2_IP>,<NODE3_IP>,<NODE4_IP>
+# - Prioritas: Node 1, 2 (local) sebagai primary
+# - Node 3, 4 (remote) sebagai backup</code>
+                                        <button class="copy-btn">Copy</button>
+                                    </div>
+                                </div>
+                                <div class="code-block-wrapper">
+                                    <span class="code-label">🏢 Site B: LB-B (Standby) - Prioritas Local Nodes</span>
+                                    <div class="code-container">
+                                        <code># On lb-b server
+bash scripts/setup_loadbalancer_os.sh
+bash scripts/setup_haproxy.sh
+
+# Saat interactive prompt:
+# - Node IPs: <NODE3_IP>,<NODE4_IP>,<NODE5_IP>,<NODE1_IP>,<NODE2_IP>
+# - Prioritas: Node 3, 4, 5 (local) sebagai primary
+# - Node 1, 2 (remote) sebagai backup</code>
+                                        <button class="copy-btn">Copy</button>
+                                    </div>
+                                </div>
+                                <div class="note">
+                                    <strong>🔄 Application Connection:</strong><br>
+                                    - Primary: <code>lb-a:26257</code> (Site A)<br>
+                                    - Failover: <code>lb-b:26257</code> (Site B)<br>
+                                    - Best: <code>lb-a:26257,lb-b:26257</code> (multi-host)
                                 </div>
                             </div>
                         </div>
