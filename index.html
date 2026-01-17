@@ -1977,10 +1977,10 @@ sudo mv molt /usr/local/bin/</code>
                     <div
                         style="background: rgba(99, 102, 241, 0.1); border: 1px solid var(--primary); border-radius: 16px; padding: 15px; margin-bottom: 20px;">
                         <p style="font-size: 0.9rem; color: var(--text-bright);">
-                            <strong>🌐 Arsitektur 2+2:</strong> Deploy 2 nodes di Site A (Primary) dan 2 nodes di Site B
-                            (DR).
-                            Dokumentasi lengkap tersedia di <a href="./MULTI_SITE_DR.md"
-                                style="color: var(--accent);">MULTI_SITE_DR.md</a>.
+                            <strong>🌐 Arsitektur 2+3 (Recommended):</strong> Deploy 2 nodes di Site A (Primary) dan 3
+                            nodes di Site B (2 full + 1 witness).
+                            Witness node hanya untuk voting dengan specs minimal (1 CPU, 1GB RAM). <strong>Automatic
+                                failover</strong> saat Site A down.
                         </p>
                     </div>
 
@@ -1993,7 +1993,7 @@ sudo mv molt /usr/local/bin/</code>
                                 <line x1="12" y1="16" x2="12" y2="12" />
                                 <line x1="12" y1="8" x2="12.01" y2="8" />
                             </svg>
-                            Topology: 2 Site tanpa Cloud
+                            Topology: 2 Site dengan Automatic Failover
                         </h3>
                         <div class="ip-example-grid">
                             <div class="ip-box">
@@ -2002,7 +2002,11 @@ sudo mv molt /usr/local/bin/</code>
                             </div>
                             <div class="ip-box">
                                 <strong>Site B (DR)</strong>
-                                <span>Node 3, Node 4 + HAProxy</span>
+                                <span>Node 3, 4, 5 (Witness) + HAProxy</span>
+                            </div>
+                            <div class="ip-box" style="grid-column: span 2; background: rgba(99, 102, 241, 0.1);">
+                                <strong>✅ Auto-Failover</strong>
+                                <span>Site A down → Site B (3/5 quorum) tetap online (~5-10s downtime)</span>
                             </div>
                         </div>
                     </div>
@@ -2025,14 +2029,16 @@ sudo mv molt /usr/local/bin/</code>
                                     </div>
                                 </div>
                                 <div class="code-block-wrapper">
-                                    <span class="code-label">Node 3 & 4 (Site B) - Tambahkan flag --locality</span>
+                                    <span class="code-label">Node 3, 4, 5 (Site B) - Tambahkan flag --locality</span>
                                     <div class="code-container">
-                                        <code>--locality=site=b,rack=1  # Node 3
---locality=site=b,rack=2  # Node 4</code>
+                                        <code>--locality=site=b,rack=1  # Node 3 (Full)
+--locality=site=b,rack=2  # Node 4 (Full)
+--locality=site=b,rack=3  # Node 5 (Witness - 1CPU, 1GB RAM)</code>
                                     </div>
                                 </div>
                                 <div class="note">Edit file <code>/etc/systemd/system/cockroach.service</code> dan
-                                    tambahkan flag <code>--locality</code> pada ExecStart.</div>
+                                    tambahkan flag <code>--locality</code> pada ExecStart. Node 5 (witness) hanya untuk
+                                    voting, tidak menyimpan data.</div>
                             </div>
                         </div>
 
@@ -2057,9 +2063,10 @@ sudo mv molt /usr/local/bin/</code>
                                 </div>
                                 <div class="note">
                                     <strong>Penjelasan:</strong><br>
-                                    - <code>num_replicas = 3</code>: Simpan 3 copy data (dari 4 nodes)<br>
-                                    - <code>constraints</code>: 2 replica di Site A, 1 di Site B<br>
-                                    - <code>lease_preferences</code>: Leaseholder (write coordinator) prefer Site A
+                                    - <code>num_replicas = 3</code>: Simpan 3 copy data (dari 5 nodes)<br>
+                                    - <code>constraints</code>: 2 replica di Site A, 1 di Site B (Node 3 atau 4)<br>
+                                    - <code>lease_preferences</code>: Leaseholder (write coordinator) prefer Site A<br>
+                                    - <strong>Node 5 (witness)</strong>: Hanya untuk voting, tidak menyimpan data
                                 </div>
                             </div>
                         </div>
@@ -2074,36 +2081,27 @@ sudo mv molt /usr/local/bin/</code>
                             </div>
                             <div class="item-body">
                                 <div class="code-block-wrapper">
-                                    <span class="code-label">Step 1: Spin Up Node 5 Temporary (Site B)</span>
+                                    <span class="code-label">Step 1: Verify Cluster Status (Automatic Failover)</span>
                                     <div class="code-container">
-                                        <code>cockroach start \
-  --certs-dir=/var/lib/cockroach/certs \
-  --advertise-addr=<NODE5_IP> \
-  --join=<NODE3_IP>,<NODE4_IP> \
-  --locality=site=b,rack=3</code>
-                                        <button class="copy-btn">Copy</button>
-                                    </div>
-                                </div>
-                                <div class="code-block-wrapper">
-                                    <span class="code-label">Step 2: Decommission Node 1 & 2 (Site A yang mati)</span>
-                                    <div class="code-container">
-                                        <code>cockroach node decommission 1 2 \
+                                        <code>cockroach node status \
   --certs-dir=/var/lib/cockroach/certs \
   --host=<NODE3_IP></code>
                                         <button class="copy-btn">Copy</button>
                                     </div>
                                 </div>
                                 <div class="code-block-wrapper">
-                                    <span class="code-label">Step 3: Update Application Connection String</span>
+                                    <span class="code-label">Step 2: Update Application Connection String</span>
                                     <div class="code-container">
                                         <code># Dari: haproxy-site-a:26257
 # Ke:   haproxy-site-b:26257</code>
                                     </div>
                                 </div>
                                 <div class="note"
-                                    style="background: rgba(244, 63, 94, 0.1); border-left: 3px solid var(--danger); padding: 10px;">
-                                    <strong>⚠️ Downtime:</strong> ~5-15 menit untuk manual steps. Cluster akan OFFLINE
-                                    sampai Node 5 join dan decommission selesai.
+                                    style="background: rgba(99, 102, 241, 0.1); border-left: 3px solid var(--primary); padding: 10px;">
+                                    <strong>✅ Automatic Failover:</strong> Cluster tetap online dengan 3/5 quorum (Node
+                                    3, 4, 5).
+                                    Downtime hanya ~5-10 detik untuk HAProxy detect node down. Tidak perlu manual
+                                    intervention!
                                 </div>
                             </div>
                         </div>
@@ -2138,16 +2136,7 @@ sudo rm -rf /var/lib/cockroach/cockroach-data/*
                                     </div>
                                 </div>
                                 <div class="code-block-wrapper">
-                                    <span class="code-label">Step 3: Decommission Node 5 (Temporary)</span>
-                                    <div class="code-container">
-                                        <code>cockroach node decommission 5 \
-  --certs-dir=/var/lib/cockroach/certs \
-  --host=<NODE3_IP></code>
-                                        <button class="copy-btn">Copy</button>
-                                    </div>
-                                </div>
-                                <div class="code-block-wrapper">
-                                    <span class="code-label">Step 4: Restore Replication Preferences</span>
+                                    <span class="code-label">Step 3: Restore Replication Preferences</span>
                                     <div class="code-container">
                                         <code>ALTER DATABASE defaultdb CONFIGURE ZONE USING 
   num_replicas = 3,
@@ -2159,7 +2148,8 @@ sudo rm -rf /var/lib/cockroach/cockroach-data/*
                                 <div class="note"
                                     style="background: rgba(99, 102, 241, 0.1); border-left: 3px solid var(--primary); padding: 10px;">
                                     <strong>✅ Zero Downtime:</strong> Recovery dilakukan saat cluster sudah online di
-                                    Site B. Node 1 & 2 akan mendapat ID baru (misal: Node 6 & 7).
+                                    Site B. Node 1 & 2 akan mendapat ID baru (misal: Node 6 & 7). Node 5 (witness) tetap
+                                    ada dan tidak perlu di-decommission.
                                 </div>
                             </div>
                         </div>
@@ -2177,28 +2167,32 @@ sudo rm -rf /var/lib/cockroach/cockroach-data/*
                                     <span class="code-label">Test 1: Single Node Failure</span>
                                     <div class="code-container">
                                         <code>sudo systemctl stop cockroach  # Di Node 1
-# Cluster harus tetap online (3/4 quorum)
+# Cluster harus tetap online (4/5 quorum)
 cockroach sql --certs-dir=/var/lib/cockroach/certs --host=<NODE2_IP> -e "SELECT 1;"</code>
                                         <button class="copy-btn">Copy</button>
                                     </div>
                                 </div>
                                 <div class="code-block-wrapper">
-                                    <span class="code-label">Test 2: Complete Site Failover</span>
+                                    <span class="code-label">Test 2: Complete Site A Failover (Automatic)</span>
                                     <div class="code-container">
                                         <code># Stop Site A
 sudo systemctl stop cockroach  # Node 1
 sudo systemctl stop cockroach  # Node 2
 
-# Follow Runbook Task 3 (Failover)
+# Wait 5-10 seconds - cluster should auto-failover
 # Verify cluster online from Site B
-# Follow Runbook Task 4 (Recovery)</code>
+cockroach sql --certs-dir=/var/lib/cockroach/certs --host=<NODE3_IP> -e "SELECT 1;"
+
+# Check node status
+cockroach node status --certs-dir=/var/lib/cockroach/certs --host=<NODE3_IP></code>
                                         <button class="copy-btn">Copy</button>
                                     </div>
                                 </div>
                                 <div class="note">
                                     <strong>📊 Expected Results:</strong><br>
-                                    - Test 1: Auto-failover dalam ~5-10 detik<br>
-                                    - Test 2: Manual failover ~5-15 menit, recovery zero downtime
+                                    - Test 1: Auto-failover dalam ~5-10 detik (4/5 quorum)<br>
+                                    - Test 2: <strong>Automatic failover</strong> dalam ~5-10 detik (3/5 quorum), zero
+                                    manual intervention
                                 </div>
                             </div>
                         </div>
