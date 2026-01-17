@@ -650,6 +650,8 @@
                             (TLS)</a></li>
                     <li><a href="#section_sec_hardening" class="toc-link"><span class="toc-number">09</span> Security
                             Hardening</a></li>
+                    <li><a href="#section_migration" class="toc-link"><span class="toc-number">10</span> PostgreSQL
+                            Migration</a></li>
                 </ul>
             </div>
 
@@ -1180,8 +1182,8 @@ SELECT * FROM cluster_test WHERE val = 'Written during failover';</code>
                                 <span>1 dedicated server</span>
                             </div>
                             <div class="ip-box">
-                                <strong>Recommended Specs</strong>
-                                <span>2-4 CPU, 4GB RAM</span>
+                                <strong>Testing Specs</strong>
+                                <span>1 CPU, 1GB RAM</span>
                             </div>
                             <div class="ip-box" style="grid-column: span 2">
                                 <strong>Ports</strong>
@@ -1356,8 +1358,8 @@ somaxconn: 4096
                                     <strong>Saat interactive prompt:</strong><br>
                                     - HAProxy IP: <code>localhost</code> (karena satu server)<br>
                                     - Port: <code>26257</code><br>
-                                    - Total vCPU cluster: Contoh <code>6</code> (untuk 3 nodes × 2 CPU)<br>
-                                    - Pool size: Auto-calculated = 24 (4 × 6 vCPU)<br>
+                                    - Total vCPU cluster: Contoh <code>3</code> (untuk 3 nodes × 1 CPU)<br>
+                                    - Pool size: Auto-calculated = 12 (4 × 3 vCPU)<br>
                                     - Max client connections: Disesuaikan dengan RAM server
                                 </div>
                                 <div class="code-block-wrapper">
@@ -1840,6 +1842,116 @@ sudo systemctl daemon-reload && sudo systemctl restart cockroach</code>
                                         <button class="copy-btn">Copy</button>
                                     </div>
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- SECTION 10: POSTGRESQL MIGRATION -->
+                <section id="section_migration" class="section">
+                    <div class="section-header">
+                        <div class="section-number">10</div>
+                        <h2>PostgreSQL Migration Guide</h2>
+                    </div>
+
+                    <div
+                        style="background: rgba(99, 102, 241, 0.1); border: 1px solid var(--primary); border-radius: 16px; padding: 15px; margin-bottom: 20px;">
+                        <p style="font-size: 0.9rem; color: var(--text-bright);">
+                            CockroachDB kompatibel dengan PostgreSQL wire protocol. Gunakan tool <strong>MOLT</strong>
+                            untuk migrasi otomatis atau <strong>IMPORT</strong> untuk migrasi offline skala besar.
+                        </p>
+                    </div>
+
+                    <div class="checklist-grid">
+                        <!-- 1. Install MOLT -->
+                        <div class="item-card" data-id="mig_install">
+                            <div class="item-card-header" onclick="toggleCheck(this)">
+                                <div class="custom-checkbox"></div>
+                                <span class="item-title">1. Install MOLT Tool <span
+                                        style="font-size: 0.65rem; background: var(--primary); color: #000; padding: 2px 6px; border-radius: 4px; margin-left: 8px;">SETUP</span></span>
+                                <span class="item-status">Pending</span>
+                            </div>
+                            <div class="item-body">
+                                <div class="code-block-wrapper">
+                                    <span class="code-label">Download & Install Binary</span>
+                                    <div class="code-container">
+                                        <code>curl https://binaries.cockroachdb.com/molt/molt.latest.linux-amd64.tar.gz | tar -xz
+sudo mv molt /usr/local/bin/</code>
+                                        <button class="copy-btn">Copy</button>
+                                    </div>
+                                </div>
+                                <div class="note">Jalankan di mesin yang bisa akses PostgreSQL (5432) dan CockroachDB
+                                    (26257).</div>
+                            </div>
+                        </div>
+
+                        <!-- 2. Schema Assessment -->
+                        <div class="item-card" data-id="mig_assessment">
+                            <div class="item-card-header" onclick="toggleCheck(this)">
+                                <div class="custom-checkbox"></div>
+                                <span class="item-title">2. Schema Assessment (MOLT Verify) <span
+                                        style="font-size: 0.65rem; background: var(--accent); color: #000; padding: 2px 6px; border-radius: 4px; margin-left: 8px;">ASSESSMENT</span></span>
+                                <span class="item-status">Pending</span>
+                            </div>
+                            <div class="item-body">
+                                <div class="code-block-wrapper">
+                                    <span class="code-label">Cek Kompatibilitas Schema</span>
+                                    <div class="code-container">
+                                        <code>./molt verify schema \
+  --source "postgres://user:pass@pg-host:5432/dbname" \
+  --target "postgres://user:pass@crdb-host:26257/dbname"</code>
+                                        <button class="copy-btn">Copy</button>
+                                    </div>
+                                </div>
+                                <div class="note">Identifikasi perbedaan data types, triggers, atau extensions sebelum
+                                    migrasi. Lihat <a href="./POSTGRES_MIGRATION.md"
+                                        style="color: var(--accent);">Panduan Lengkap (Markdown)</a>.</div>
+                            </div>
+                        </div>
+
+                        <!-- 3. Data Migration -->
+                        <div class="item-card" data-id="mig_fetch">
+                            <div class="item-card-header" onclick="toggleCheck(this)">
+                                <div class="custom-checkbox"></div>
+                                <span class="item-title">3. Data Migration (MOLT Fetch) <span
+                                        style="font-size: 0.65rem; background: var(--primary); color: #000; padding: 2px 6px; border-radius: 4px; margin-left: 8px;">EXECUTION</span></span>
+                                <span class="item-status">Pending</span>
+                            </div>
+                            <div class="item-body">
+                                <div class="code-block-wrapper">
+                                    <span class="code-label">Migrasi Data Full Copy</span>
+                                    <div class="code-container">
+                                        <code>./molt fetch \
+  --source "postgres://user:pass@pg-host:5432/dbname" \
+  --target "postgres://user:pass@crdb-host:26257/dbname"</code>
+                                        <button class="copy-btn">Copy</button>
+                                    </div>
+                                </div>
+                                <div class="note">Gunakan <code>fetch</code> untuk database skala kecil-menengah. Untuk
+                                    skala TB, gunakan <code>IMPORT</code> command.</div>
+                            </div>
+                        </div>
+
+                        <!-- 4. Post-Migration Verify -->
+                        <div class="item-card" data-id="mig_verify">
+                            <div class="item-card-header" onclick="toggleCheck(this)">
+                                <div class="custom-checkbox"></div>
+                                <span class="item-title">4. Verify Data Consistency <span
+                                        style="font-size: 0.65rem; background: var(--success); color: #000; padding: 2px 6px; border-radius: 4px; margin-left: 8px;">VERIFICATION</span></span>
+                                <span class="item-status">Pending</span>
+                            </div>
+                            <div class="item-body">
+                                <div class="code-block-wrapper">
+                                    <span class="code-label">Bandingkan Data Source vs Target</span>
+                                    <div class="code-container">
+                                        <code>./molt verify data \
+  --source "postgres://user:pass@pg-host:5432/dbname" \
+  --target "postgres://user:pass@crdb-host:26257/dbname"</code>
+                                        <button class="copy-btn">Copy</button>
+                                    </div>
+                                </div>
+                                <div class="note">Memastikan jumlah row dan konten data identik antara Postgres dan
+                                    CockroachDB.</div>
                             </div>
                         </div>
                     </div>

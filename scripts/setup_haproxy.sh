@@ -10,11 +10,13 @@ echo "Starting HAProxy Installation for CockroachDB..."
 # 1. Detect server specifications
 TOTAL_MEM_KB=$(grep MemTotal /proc/meminfo | awk '{print $2}')
 TOTAL_MEM_MB=$((TOTAL_MEM_KB / 1024))
+# Display memory in GB with 1 decimal place precision
+TOTAL_MEM_GB_DISPLAY=$(awk "BEGIN {printf \"%.1f\", $TOTAL_MEM_MB/1024}")
 TOTAL_MEM_GB=$((TOTAL_MEM_MB / 1024))
 CPU_CORES=$(nproc)
 
 echo "Detected Server Specs:"
-echo "  - RAM: ${TOTAL_MEM_GB}GB (${TOTAL_MEM_MB}MB)"
+echo "  - RAM: ${TOTAL_MEM_GB_DISPLAY}GB (${TOTAL_MEM_MB}MB)"
 echo "  - CPU Cores: ${CPU_CORES}"
 echo ""
 
@@ -105,7 +107,7 @@ echo "Generating HAProxy configuration..."
 
 cat <<EOF | sudo tee /etc/haproxy/haproxy.cfg
 # HAProxy Configuration for CockroachDB
-# Auto-generated for ${TOTAL_MEM_GB}GB RAM, ${CPU_CORES} CPU cores
+# Auto-generated for ${TOTAL_MEM_GB_DISPLAY}GB RAM, ${CPU_CORES} CPU cores
 # Generated: $(date)
 
 global
@@ -118,13 +120,12 @@ global
     group haproxy
     daemon
 
-    # Adaptive max connections ($MAXCONN for ${TOTAL_MEM_GB}GB RAM)
+    # Adaptive max connections ($MAXCONN for ${TOTAL_MEM_GB_DISPLAY}GB RAM)
     maxconn $MAXCONN
     
     # Performance tuning
     tune.bufsize 32768
     tune.maxrewrite 1024
-    nbproc 1
     nbthread $CPU_CORES
 
 defaults

@@ -42,9 +42,13 @@ cockroachdb-installer/
 ### 1. Provision Infrastructure (Multipass Example)
 
 ```bash
-multipass launch --name n1 --cpus 2 --memory 2G --disk 10G
-multipass launch --name n2 --cpus 2 --memory 2G --disk 10G
-multipass launch --name n3 --cpus 2 --memory 2G --disk 10G
+# Load Balancer Node
+multipass launch lts --name lb --cpus 1 --memory 1G --disk 10G
+
+# CockroachDB Nodes
+multipass launch lts --name n1 --cpus 1 --memory 2G --disk 10G
+multipass launch lts --name n2 --cpus 1 --memory 2G --disk 10G
+multipass launch lts --name n3 --cpus 1 --memory 2G --disk 10G
 ```
 
 ### 2. Clone Repository
@@ -156,8 +160,8 @@ If your production application has **>1000 concurrent connections**, you **MUST 
 
 **Why?** CockroachDB supports max **4 active connections per vCPU**:
 ```
-Example: 3 nodes × 2 CPU = 6 vCPU
-Max recommended: 6 × 4 = 24 active connections
+Example: 3 nodes × 1 CPU = 3 vCPU
+Max recommended: 3 × 4 = 12 active connections
 Your production: >1000 connections ❌ PROBLEM!
 ```
 
@@ -175,7 +179,7 @@ bash scripts/setup_pgbouncer.sh
 
 **Key Configuration:**
 - **Pool Mode:** `transaction` (most efficient for CockroachDB)
-- **Pool Size:** `4 × total vCPU` (e.g., 24 for 6 vCPU cluster)
+- **Pool Size:** `4 × total vCPU` (e.g., 12 for 3 vCPU cluster)
 - **Max Client Connections:** `5000` (adjust based on your load)
 - **Port:** `6432` (PgBouncer default)
 

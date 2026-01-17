@@ -88,13 +88,13 @@ bash scripts/setup_loadbalancer_os.sh
 
 # 2. Install HAProxy
 bash scripts/setup_haproxy.sh
-# → Will detect: 4GB RAM, 2 CPU
-# → Apply: maxconn=4096, nbthread=2
+# → Will detect: 1GB RAM, 1 CPU
+# → Apply: maxconn=1024, nbthread=1
 
 # 3. Install PgBouncer (if >1000 connections)
 bash scripts/setup_pgbouncer.sh
-# → Will detect: 4GB RAM
-# → Recommend: max_client_conn=5000
+# → Will detect: 1GB RAM
+# → Recommend: max_client_conn=500
 ```
 
 ## 📈 Resource Calculations
