@@ -229,11 +229,195 @@ config.setMaxLifetime(300000);  // 5 minutes
 | **<100 concurrent connections** | ❌ NO | Adds unnecessary complexity |
 
 
+## 🌐 Multi-Site Disaster Recovery (2-Site Architecture)
+
+### Architecture Overview: 2+3 (Asymmetric with Witness)
+
+For organizations with **2 physical sites** where Site B is always-on DR, deploy 5 nodes total:
+
+```
+┌─────────────────────────┐         ┌─────────────────────────────────┐
+│      Site A (Primary)   │         │      Site B (DR - Always On)    │
+├─────────────────────────┤         ├─────────────────────────────────┤
+│ Node 1 (site=a,rack=1)  │◄───────►│ Node 3 (site=b,rack=1)          │
+│ Node 2 (site=a,rack=2)  │  Raft   │ Node 4 (site=b,rack=2)          │
+│ HAProxy (Primary)       │         │ Node 5 (site=b,rack=3) Witness  │
+└─────────────────────────┘         │ HAProxy (Standby)               │
+         ▲                           └─────────────────────────────────┘
+         │                                    ▲
+    Application                          Application
+   (Primary Path)                       (Failover Path)
+```
+
+**Deployment:**
+- **Site A**: 2 full nodes (primary workload)
+- **Site B**: 3 nodes (2 full + 1 witness)
+- **Total**: 5 nodes
+- **Quorum**: 3/5 (majority)
+
+**Witness Node Specs (Minimal):**
+- CPU: 1 core
+- RAM: 1GB
+- Disk: 10GB
+- Purpose: Voting only, no data storage
+
+### Setup: Locality Configuration
+
+Add `--locality` flag to each node's systemd service:
+
+**Site A (Node 1 & 2):**
+```bash
+--locality=site=a,rack=1  # Node 1
+--locality=site=a,rack=2  # Node 2
+```
+
+**Site B (Node 3, 4, 5):**
+```bash
+--locality=site=b,rack=1  # Node 3
+--locality=site=b,rack=2  # Node 4
+--locality=site=b,rack=3  # Node 5 (Witness)
+```
+
+### Replication Preferences
+
+Prioritize Site A for write performance:
+
+```sql
+ALTER DATABASE defaultdb CONFIGURE ZONE USING 
+  num_replicas = 3,
+  constraints = '{"+site=a": 2, "+site=b": 1}',
+  lease_preferences = '[[+site=a]]';
+```
+
+**Explanation:**
+- `num_replicas = 3`: Keep 3 copies of data (out of 5 nodes)
+- `constraints`: 2 replicas in Site A, 1 in Site B (Node 3 or 4)
+- `lease_preferences`: Prefer Site A for leaseholder (write coordinator)
+- Node 5 (witness) only participates in voting, doesn't store data
+
+---
+
+### Failover Scenarios
+
+| Scenario | Nodes Down | Quorum | Auto-Failover? | Downtime |
+|----------|------------|--------|----------------|----------|
+| 1 node down (any) | 1/5 | 4/5 ✅ | ✅ Yes | ~5-10s |
+| **Site A down (Node 1+2)** | 2/5 | **3/5 ✅** | ✅ **YES** | ~5-10s |
+| Node 5 (witness) down | 1/5 | 4/5 ✅ | ✅ Yes | ~5-10s |
+
+**Key Advantage:**
+- ✅ **Automatic failover** when Site A goes down completely
+- ✅ Site B (3 nodes) maintains quorum without manual intervention
+- ✅ Zero manual steps during disaster
+
+---
+
+### Automatic Failover: Site A Complete Failure
+
+**What Happens Automatically:**
+
+1. **Detection** (~3-5 seconds)
+   - Raft detects Node 1 & 2 are unreachable
+   - Remaining nodes (3, 4, 5) still have 3/5 quorum ✅
+
+2. **Leader Election** (~2-4 seconds)
+   - New leaseholder elected from Site B (Node 3 or 4)
+   - Cluster continues accepting writes
+
+3. **HAProxy Failover** (~1-2 seconds)
+   - HAProxy marks Node 1 & 2 as DOWN
+   - Routes all traffic to Node 3 & 4
+
+**Total Downtime:** ~5-10 seconds (fully automatic)
+
+**Application Action Required:**
+- Update connection string from `haproxy-site-a:26257` to `haproxy-site-b:26257`
+- Or use DNS CNAME for zero-touch failover
+
+---
+
+### Recovery: Site A Rejoin (Zero Downtime)
+
+**Step 1: Wipe Old Data**
+```bash
+# On Node 1 & Node 2
+sudo systemctl stop cockroach
+sudo rm -rf /var/lib/cockroach/cockroach-data/*
+# DO NOT delete /var/lib/cockroach/certs/
+```
+
+**Step 2: Rejoin as New Nodes**
+```bash
+cockroach start \
+  --certs-dir=/var/lib/cockroach/certs \
+  --advertise-addr=<NODE1_IP> \
+  --join=<NODE3_IP>,<NODE4_IP>,<NODE5_IP> \
+  --locality=site=a,rack=1
+```
+
+**Step 3: Restore Replication Preferences**
+```sql
+ALTER DATABASE defaultdb CONFIGURE ZONE USING 
+  num_replicas = 3,
+  constraints = '{"+site=a": 2, "+site=b": 1}',
+  lease_preferences = '[[+site=a]]';
+```
+
+**Step 4: Update Application Connection**
+```bash
+# Back to Site A (primary)
+# From: haproxy-site-b:26257
+# To:   haproxy-site-a:26257
+```
+
+**Result:** Back to 2+3 topology (Node 6, 7, 3, 4, 5) ✅  
+**Downtime:** 0 minutes (cluster was online during entire recovery)
+
+---
+
+### Testing Procedures
+
+**Test 1: Single Node Failure**
+```bash
+sudo systemctl stop cockroach  # On Node 1
+# Cluster should remain online (4/5 quorum)
+cockroach sql --certs-dir=/var/lib/cockroach/certs --host=<NODE2_IP> -e "SELECT 1;"
+```
+
+**Test 2: Complete Site A Failover (Automatic)**
+```bash
+# Stop Site A
+sudo systemctl stop cockroach  # Node 1
+sudo systemctl stop cockroach  # Node 2
+
+# Wait 5-10 seconds - cluster should auto-failover
+# Verify cluster online from Site B
+cockroach sql --certs-dir=/var/lib/cockroach/certs --host=<NODE3_IP> -e "SELECT 1;"
+
+# Check node status
+cockroach node status --certs-dir=/var/lib/cockroach/certs --host=<NODE3_IP>
+```
+
+**Test 3: Site A Recovery**
+```bash
+# Follow recovery steps above
+# Verify all 5 nodes online
+cockroach node status --certs-dir=/var/lib/cockroach/certs --host=<NODE3_IP>
+```
+
+**Expected Results:**
+- Test 1: Auto-failover in ~5-10 seconds
+- Test 2: Auto-failover in ~5-10 seconds (no manual intervention)
+- Test 3: Zero downtime recovery
+
+---
+
+---
 
 ## 📚 Documentation
 
 - **Interactive Guide:** Open `index.html` in browser for complete walkthrough with checklist
-- **Release Notes:** See [RELEASE_NOTES.md](./RELEASE_NOTES.md) for version history
+- **Multi-Site DR:** See section above for 2-site disaster recovery procedures
 
 ---
 
