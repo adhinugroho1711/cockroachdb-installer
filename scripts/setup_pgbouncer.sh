@@ -31,10 +31,10 @@ echo "Installing PgBouncer..."
 case "$OS" in
     ubuntu|debian)
         sudo apt-get update
-        sudo apt-get install -y pgbouncer
+        sudo apt-get install -y pgbouncer postgresql-client
         ;;
     centos|rhel|rocky|almalinux)
-        sudo yum install -y pgbouncer
+        sudo yum install -y pgbouncer postgresql
         ;;
     *)
         echo "ERROR: OS $OS not supported for automatic PgBouncer installation"
