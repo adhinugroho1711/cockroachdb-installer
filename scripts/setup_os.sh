@@ -41,7 +41,15 @@ esac
 
 # 3. Timezone & Time Sync
 echo "Configuring timezone and time synchronization..."
-sudo timedatectl set-timezone Asia/Jakarta
+# Auto-detect current timezone or allow user to set it
+CURRENT_TZ=$(timedatectl show --property=Timezone --value 2>/dev/null || echo "UTC")
+echo "Current timezone: $CURRENT_TZ"
+read -p "Change timezone? (leave blank to keep current, or enter timezone like 'Asia/Jakarta'): " NEW_TZ
+if [ -n "$NEW_TZ" ]; then
+    sudo timedatectl set-timezone "$NEW_TZ" && echo "Timezone set to: $NEW_TZ"
+else
+    echo "Keeping current timezone: $CURRENT_TZ"
+fi
 
 # Enable time sync (systemd-timesyncd for Ubuntu/Debian, chronyd for RHEL-based)
 if systemctl list-unit-files | grep -q systemd-timesyncd; then
@@ -68,9 +76,30 @@ cockroach soft nofile 100000
 cockroach hard nofile 100000
 EOF
 
-# 6. Kernel Tuning (sysctl)
-# Adjust dynamic limits if needed, but standard CockroachDB values are generally robust
-echo "Tuning kernel parameters..."
+# 6. Kernel Tuning (sysctl) - Adaptive based on RAM
+echo "Tuning kernel parameters (adaptive to ${TOTAL_MEM_MB}MB RAM)..."
+
+# Calculate adaptive values based on RAM
+if [ "$TOTAL_MEM_MB" -lt 4096 ]; then
+    # Low RAM servers (<4GB)
+    SOMAXCONN=1024
+    MAX_SYN_BACKLOG=1024
+    FILE_MAX=500000
+    echo "Using LOW RAM profile"
+elif [ "$TOTAL_MEM_MB" -lt 16384 ]; then
+    # Medium RAM servers (4-16GB)
+    SOMAXCONN=4096
+    MAX_SYN_BACKLOG=4096
+    FILE_MAX=1000000
+    echo "Using MEDIUM RAM profile"
+else
+    # High RAM servers (>16GB)
+    SOMAXCONN=8192
+    MAX_SYN_BACKLOG=8192
+    FILE_MAX=2000000
+    echo "Using HIGH RAM profile"
+fi
+
 sudo mkdir -p /etc/sysctl.d
 cat <<EOF | sudo tee /etc/sysctl.d/99-cockroach.conf
 # Memory Tuning
@@ -79,12 +108,12 @@ vm.dirty_ratio = 20
 vm.dirty_background_ratio = 10
 vm.overcommit_memory = 0
 
-# File System
-fs.file-max = 1000000
+# File System (adaptive: $FILE_MAX)
+fs.file-max = $FILE_MAX
 
-# Network Tuning
-net.core.somaxconn = 4096
-net.ipv4.tcp_max_syn_backlog = 4096
+# Network Tuning (adaptive: somaxconn=$SOMAXCONN)
+net.core.somaxconn = $SOMAXCONN
+net.ipv4.tcp_max_syn_backlog = $MAX_SYN_BACKLOG
 net.ipv4.tcp_keepalive_time = 60
 net.ipv4.tcp_keepalive_intvl = 10
 net.ipv4.tcp_keepalive_probes = 6
@@ -93,7 +122,28 @@ EOF
 
 sudo sysctl -p /etc/sysctl.d/99-cockroach.conf
 
-# 7. Disable Swap (Recommended for CockroachDB latency)
+# 7. Configure Transparent Huge Pages (THP) - CockroachDB Recommendation
+echo "Configuring Transparent Huge Pages (THP)..."
+if [ -f /sys/kernel/mm/transparent_hugepage/enabled ]; then
+    # Set THP to 'madvise' mode (recommended by CockroachDB)
+    echo madvise | sudo tee /sys/kernel/mm/transparent_hugepage/enabled
+    echo madvise | sudo tee /sys/kernel/mm/transparent_hugepage/defrag
+    echo "THP set to 'madvise' mode"
+    
+    # Make it persistent across reboots
+    sudo mkdir -p /etc/systemd/system/cockroach.service.d
+    cat <<THPEOF | sudo tee /etc/rc.local
+#!/bin/bash
+echo madvise > /sys/kernel/mm/transparent_hugepage/enabled
+echo madvise > /sys/kernel/mm/transparent_hugepage/defrag
+exit 0
+THPEOF
+    sudo chmod +x /etc/rc.local
+else
+    echo "THP not available on this kernel, skipping..."
+fi
+
+# 8. Disable Swap (Recommended for CockroachDB latency)
 echo "Disabling swap..."
 sudo swapoff -a
 sudo sed -i '/swap/s/^/#/' /etc/fstab || true

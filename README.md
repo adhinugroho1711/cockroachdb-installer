@@ -24,13 +24,15 @@ Automated installation and optimization scripts for **CockroachDB** on resource-
 
 ```text
 cockroachdb-installer/
-├── README.md                   # This file
-├── RELEASE_NOTES.md            # Version history & changelog
-├── index.html                  # Interactive checklist & detailed guide
+├── README.md                      # This file
+├── RELEASE_NOTES.md               # Version history & changelog
+├── index.html                     # Interactive checklist & detailed guide
 ├── scripts/
-│   ├── setup_os.sh             # OS optimization (kernel, limits, firewall)
-│   ├── setup_cockroach.sh      # CockroachDB installation & systemd
-│   └── setup_haproxy.sh        # HAProxy load balancer setup
+│   ├── setup_os.sh                # OS optimization for CockroachDB nodes
+│   ├── setup_cockroach.sh         # CockroachDB installation & systemd
+│   ├── setup_loadbalancer_os.sh   # OS optimization for HAProxy+PgBouncer server
+│   ├── setup_haproxy.sh           # HAProxy load balancer (adaptive config)
+│   └── setup_pgbouncer.sh         # PgBouncer for >1000 connections (adaptive)
 ```
 
 ---
@@ -74,7 +76,8 @@ bash setup_cockroach.sh
 Then start:
 
 ```bash
-sudo systemctl enable --now cockroach
+sudo systemctl start cockroach
+sudo systemctl enable cockroach
 ```
 
 ### 5. Initialize Cluster (run once)
@@ -83,11 +86,31 @@ sudo systemctl enable --now cockroach
 cockroach init --insecure --host=<IP_NODE_1>
 ```
 
+### 5a. Optimize Load Balancer Server (HAProxy+PgBouncer server)
+
+**Run this on the dedicated load balancer server (NOT on CockroachDB nodes):**
+
+```bash
+bash scripts/setup_loadbalancer_os.sh
+```
+
+This optimizes kernel parameters specifically for HAProxy and PgBouncer workload (high connection count, low latency networking).
+
 ### 6. Setup Load Balancer
 
 ```bash
 bash scripts/setup_haproxy.sh
 ```
+
+### 6a. Setup PgBouncer (For Production with >1000 connections)
+
+**Only if your application has >1000 concurrent connections:**
+
+```bash
+bash scripts/setup_pgbouncer.sh
+```
+
+Then update your application to connect to PgBouncer (port 6432) instead of HAProxy (port 26257).
 
 ### 7. Open Interactive Guide
 
@@ -97,12 +120,13 @@ Open `index.html` in your browser for detailed step-by-step checklist with progr
 
 ## 📊 Architecture Transition (PostgreSQL → CockroachDB)
 
-| Component         | PostgreSQL Stack          | CockroachDB Stack       |
-|-------------------|---------------------------|-------------------------|
-| **HA Manager**    | Patroni + ETCD            | Native Raft Consensus   |
-| **Load Balancer** | PgBouncer                 | HAProxy                 |
-| **Replication**   | Streaming Replication     | Multi-Raft Ranges       |
-| **Failover**      | Manual/Semi-Automatic     | Fully Automatic (~9s)   |
+| Component             | PostgreSQL Stack          | CockroachDB Stack                  |
+|-----------------------|---------------------------|------------------------------------|
+| **HA Manager**        | Patroni + ETCD            | Native Raft Consensus              |
+| **Load Balancer**     | HAProxy / Keepalived      | HAProxy (same)                     |
+| **Connection Pool**   | PgBouncer (required)      | Client-side (HikariCP/pg-pool)     |
+| **Replication**       | Streaming Replication     | Multi-Raft Ranges                  |
+| **Failover**          | Manual/Semi-Automatic     | Fully Automatic (~9s)              |
 
 ---
 
@@ -123,6 +147,84 @@ Open `index.html` in your browser for detailed step-by-step checklist with progr
 - **Storage:** SSD/NVMe (write-heavy workload)
 
 ---
+
+## 🔌 Connection Pooling Strategy
+
+### ⚠️ For Production: High Connection Load (>1000 concurrent)
+
+If your production application has **>1000 concurrent connections**, you **MUST use PgBouncer**:
+
+**Why?** CockroachDB supports max **4 active connections per vCPU**:
+```
+Example: 3 nodes × 2 CPU = 6 vCPU
+Max recommended: 6 × 4 = 24 active connections
+Your production: >1000 connections ❌ PROBLEM!
+```
+
+**Solution Architecture:**
+```
+Application (1000+ conn) → PgBouncer (24 conn) → HAProxy → CockroachDB
+                           └─ 40x reduction ─┘
+```
+
+### Setup PgBouncer (for >1000 connections)
+
+```bash
+bash scripts/setup_pgbouncer.sh
+```
+
+**Key Configuration:**
+- **Pool Mode:** `transaction` (most efficient for CockroachDB)
+- **Pool Size:** `4 × total vCPU` (e.g., 24 for 6 vCPU cluster)
+- **Max Client Connections:** `5000` (adjust based on your load)
+- **Port:** `6432` (PgBouncer default)
+
+**Application Connection String:**
+```
+postgresql://user:password@pgbouncer-ip:6432/database
+```
+
+---
+
+### For Development/Low Load (<100 connections)
+
+CockroachDB uses a **thread-based connection model** (vs PostgreSQL's process-per-connection), making each connection 300x more lightweight (~30KB vs 9MB).
+
+✅ **Use client-side pooling** (in your application)  
+❌ **No PgBouncer needed** for low-traffic scenarios
+
+**Example (Node.js):**
+```javascript
+const { Pool } = require('pg');
+const pool = new Pool({
+  host: 'haproxy-ip',
+  port: 26257,
+  max: 20,  // 4x CPU cores
+  idleTimeoutMillis: 300000,  // 5 minutes
+});
+```
+
+**Example (Java with HikariCP):**
+```java
+HikariConfig config = new HikariConfig();
+config.setMaximumPoolSize(20);
+config.setMinimumIdle(20);  // Same as max
+config.setMaxLifetime(300000);  // 5 minutes
+```
+
+---
+
+### Decision Matrix: When to Use PgBouncer?
+
+| Scenario | Use PgBouncer? | Reason |
+|----------|----------------|--------|
+| **>1000 concurrent connections** | ✅ **YES (REQUIRED)** | Exceeds CockroachDB connection limits |
+| **Serverless (Lambda/Cloud Functions)** | ✅ **YES** | Can't maintain persistent pools |
+| **Legacy apps (can't modify code)** | ✅ **YES** | No control over connection logic |
+| **Development/Testing** | ❌ NO | Client-side pooling sufficient |
+| **<100 concurrent connections** | ❌ NO | Adds unnecessary complexity |
+
+
 
 ## 📚 Documentation
 

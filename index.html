@@ -12,18 +12,21 @@
         rel="stylesheet">
     <style>
         :root {
-            --primary: #00f59b;
-            --primary-dark: #00d486;
-            --bg-dark: #020617;
-            --surface-dark: #0f172a;
-            --surface-light: #1e293b;
+            --primary: #6366f1;
+            /* Indigo */
+            --primary-dark: #4f46e5;
+            --bg-dark: #0f172a;
+            /* Deep Slate */
+            --surface-dark: #1e293b;
+            --surface-light: #334155;
             --text-main: #94a3b8;
             --text-bright: #f8fafc;
             --accent: #38bdf8;
             --border: rgba(255, 255, 255, 0.1);
-            --success: #10b981;
+            --success: #6366f1;
+            /* Using Indigo for Success too to avoid Green saturation */
             --warning: #f59e0b;
-            --danger: #ef4444;
+            --danger: #f43f5e;
         }
 
         * {
@@ -41,8 +44,8 @@
             line-height: 1.6;
             background-color: var(--bg-dark);
             background-image:
-                radial-gradient(at 0% 0%, rgba(0, 245, 155, 0.05) 0px, transparent 50%),
-                radial-gradient(at 100% 100%, rgba(56, 189, 248, 0.05) 0px, transparent 50%);
+                radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.08) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(56, 189, 248, 0.08) 0px, transparent 50%);
             color: var(--text-main);
             padding: 20px;
             min-height: 100vh;
@@ -90,7 +93,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 0 20px rgba(0, 245, 155, 0.4);
+            box-shadow: 0 0 20px rgba(99, 102, 241, 0.2);
         }
 
         .brand h1 {
@@ -126,7 +129,7 @@
             background: linear-gradient(90deg, var(--primary) 0%, var(--accent) 100%);
             width: 0%;
             transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 0 10px rgba(0, 245, 155, 0.3);
+            box-shadow: 0 0 10px rgba(99, 102, 241, 0.3);
         }
 
         .stat-grid {
@@ -187,7 +190,7 @@
         .btn-primary:hover {
             opacity: 0.9;
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 245, 155, 0.3);
+            box-shadow: 0 5px 15px rgba(99, 102, 241, 0.3);
         }
 
         .btn-secondary {
@@ -227,7 +230,7 @@
         .section-number {
             width: 32px;
             height: 32px;
-            background: rgba(0, 245, 155, 0.1);
+            background: rgba(99, 102, 241, 0.1);
             color: var(--primary);
             border-radius: 50%;
             display: flex;
@@ -253,7 +256,7 @@
 
         .item-card.checked {
             border-color: var(--primary);
-            background: rgba(0, 245, 155, 0.03);
+            background: rgba(99, 102, 241, 0.05);
         }
 
         .item-card-header {
@@ -310,7 +313,7 @@
         }
 
         .item-card.checked .item-status {
-            background: rgba(0, 245, 155, 0.2);
+            background: rgba(99, 102, 241, 0.2);
             color: var(--primary);
         }
 
@@ -336,7 +339,8 @@
 
         .code-container {
             position: relative;
-            background: #000;
+            background: #0f172a;
+            /* Midnight Blue instead of black */
             border-radius: 12px;
             padding: 12px;
             border: 1px solid var(--border);
@@ -345,7 +349,8 @@
         code {
             font-family: 'JetBrains Mono', monospace;
             font-size: 0.8rem;
-            color: #4ade80;
+            color: #818cf8;
+            /* Soft Indigo instead of Green */
             white-space: pre-wrap;
             word-break: break-all;
         }
@@ -384,7 +389,7 @@
         }
 
         .tutorial-card {
-            background: linear-gradient(135deg, rgba(56, 189, 248, 0.1), rgba(0, 245, 155, 0.05));
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.08), rgba(99, 102, 241, 0.08));
             border: 1px solid var(--primary);
             border-radius: 20px;
             padding: 24px;
@@ -469,9 +474,9 @@
         }
 
         .toc-link.active {
-            background: rgba(0, 245, 155, 0.1);
+            background: rgba(99, 102, 241, 0.1);
             color: var(--primary);
-            border-color: rgba(0, 245, 155, 0.2);
+            border-color: rgba(99, 102, 241, 0.2);
             font-weight: 600;
         }
 
@@ -628,17 +633,22 @@
                     style="font-size: 0.85rem; padding-bottom: 12px; border-bottom: 1px solid var(--border); margin-bottom: 16px; display: block;">Table
                     of Contents</span>
                 <ul class="toc-list" style="overflow-y: auto; flex: 1; padding-right: 5px;">
-                    <li><a href="#section_os" class="toc-link"><span class="toc-number">01</span> Optimasi OS</a></li>
+                    <li><a href="#section_os" class="toc-link"><span class="toc-number">01</span> Optimasi OS (DB
+                            Nodes)</a></li>
                     <li><a href="#section_init" class="toc-link"><span class="toc-number">02</span> Init & Cluster
                             Join</a></li>
                     <li><a href="#section_sql" class="toc-link"><span class="toc-number">03</span> Active-Active SQL</a>
                     </li>
                     <li><a href="#section_ha" class="toc-link"><span class="toc-number">04</span> HA & Failover Test</a>
                     </li>
-                    <li><a href="#section_opt" class="toc-link"><span class="toc-number">05</span> Optimization</a></li>
-                    <li><a href="#section_sec_setup" class="toc-link"><span class="toc-number">06</span> Security Setup
+                    <li><a href="#section_haproxy" class="toc-link"><span class="toc-number">05</span> HAProxy Setup</a>
+                    </li>
+                    <li><a href="#section_pgbouncer" class="toc-link"><span class="toc-number">06</span> PgBouncer
+                            (Optional)</a></li>
+                    <li><a href="#section_opt" class="toc-link"><span class="toc-number">07</span> Optimization</a></li>
+                    <li><a href="#section_sec_setup" class="toc-link"><span class="toc-number">08</span> Security Setup
                             (TLS)</a></li>
-                    <li><a href="#section_sec_hardening" class="toc-link"><span class="toc-number">07</span> Security
+                    <li><a href="#section_sec_hardening" class="toc-link"><span class="toc-number">09</span> Security
                             Hardening</a></li>
                 </ul>
             </div>
@@ -850,7 +860,8 @@ Swap: 0B</code>
                             <div class="code-block-wrapper">
                                 <span class="code-label">Active Service</span>
                                 <div class="code-container">
-                                    <code>sudo systemctl enable --now cockroach</code>
+                                    <code>sudo systemctl start cockroach
+sudo systemctl enable cockroach</code>
                                     <button class="copy-btn">Copy</button>
                                 </div>
                             </div>
@@ -979,7 +990,8 @@ Swap: 0B</code>
                             <div class="code-block-wrapper">
                                 <span class="code-label">Paste setelah Login di Node 1</span>
                                 <div class="code-container">
-                                    <code>CREATE TABLE IF NOT EXISTS cluster_test (id UUID PRIMARY KEY DEFAULT gen_random_uuid(), val TEXT);<br>INSERT INTO cluster_test (val) VALUES ('Data from Node 1');</code>
+                                    <code>CREATE TABLE IF NOT EXISTS cluster_test (id UUID PRIMARY KEY DEFAULT gen_random_uuid(), val TEXT);
+INSERT INTO cluster_test (val) VALUES ('Data from Node 1');</code>
                                     <button class="copy-btn">Copy</button>
                                 </div>
                             </div>
@@ -1004,7 +1016,8 @@ Swap: 0B</code>
                             <div class="code-block-wrapper">
                                 <span class="code-label">Paste setelah Login di Node 2</span>
                                 <div class="code-container">
-                                    <code>SELECT * FROM cluster_test;<br>INSERT INTO cluster_test (val) VALUES ('Data from Node 2');</code>
+                                    <code>SELECT * FROM cluster_test;
+INSERT INTO cluster_test (val) VALUES ('Data from Node 2');</code>
                                     <button class="copy-btn">Copy</button>
                                 </div>
                             </div>
@@ -1102,7 +1115,8 @@ Swap: 0B</code>
                             <div class="code-block-wrapper">
                                 <span class="code-label">Langkah 2: Verifikasi Data di Node 2</span>
                                 <div class="code-container">
-                                    <code># Login di Node 2 lalu cek data:<br>SELECT * FROM cluster_test WHERE val = 'Written during failover';</code>
+                                    <code># Login di Node 2 lalu cek data:
+SELECT * FROM cluster_test WHERE val = 'Written during failover';</code>
                                     <button class="copy-btn">Copy</button>
                                 </div>
                             </div>
@@ -1137,10 +1151,292 @@ Swap: 0B</code>
                         </div>
                     </div>
                 </div>
-                <!-- SECTION 6: OPTIMIZATION & MONITORING -->
-                <section id="section_opt" class="section">
+
+                <!-- SECTION 5: HAPROXY LOAD BALANCER -->
+                <section id="section_haproxy" class="section">
                     <div class="section-header">
                         <div class="section-number">05</div>
+                        <h2>HAProxy Load Balancer Setup</h2>
+                    </div>
+
+                    <div class="tutorial-card">
+                        <h3
+                            style="color: var(--text-bright); margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--primary)"
+                                stroke-width="2.5">
+                                <circle cx="12" cy="12" r="10" />
+                                <line x1="12" y1="16" x2="12" y2="12" />
+                                <line x1="12" y1="8" x2="12.01" y2="8" />
+                            </svg>
+                            HAProxy: Dedicated Load Balancer Server
+                        </h3>
+                        <p style="color: var(--text-main); margin-bottom: 12px;">
+                            <strong>Setup HAProxy pada server terpisah</strong> (BUKAN di node CockroachDB). HAProxy
+                            akan mendistribusikan koneksi SQL ke 3 nodes secara merata.
+                        </p>
+                        <div class="ip-example-grid">
+                            <div class="ip-box">
+                                <strong>Server Count</strong>
+                                <span>1 dedicated server</span>
+                            </div>
+                            <div class="ip-box">
+                                <strong>Recommended Specs</strong>
+                                <span>2-4 CPU, 4GB RAM</span>
+                            </div>
+                            <div class="ip-box" style="grid-column: span 2">
+                                <strong>Ports</strong>
+                                <span>26257 (SQL), 8081 (Stats)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="checklist-grid">
+                        <!-- HAProxy Task 1 -->
+                        <div class="item-card" data-id="haproxy_os">
+                            <div class="item-card-header" onclick="toggleCheck(this)">
+                                <div class="custom-checkbox"></div>
+                                <span class="item-title">1. OS Optimization for Load Balancer <span
+                                        style="font-size: 0.65rem; background: var(--warning); color: #000; padding: 2px 6px; border-radius: 4px; margin-left: 8px;">RUN
+                                        ON LB SERVER</span></span>
+                                <span class="item-status">Pending</span>
+                            </div>
+                            <div class="item-body">
+                                <div class="code-block-wrapper">
+                                    <span class="code-label">Run on Load Balancer Server</span>
+                                    <div class="code-container">
+                                        <code>bash scripts/setup_loadbalancer_os.sh</code>
+                                        <button class="copy-btn">Copy</button>
+                                    </div>
+                                </div>
+                                <div class="code-block-wrapper">
+                                    <span class="code-label">Expected Output</span>
+                                    <div class="code-container">
+                                        <code class="result-code">Detected: 4GB RAM, 2 CPU
+Profile: STANDARD
+somaxconn: 4096
+✅ Optimization Complete!</code>
+                                    </div>
+                                </div>
+                                <div class="note">Script ini mengoptimalkan kernel parameters untuk workload proxy
+                                    dengan connection count tinggi.</div>
+                            </div>
+                        </div>
+
+                        <!-- HAProxy Task 2 -->
+                        <div class="item-card" data-id="haproxy_install">
+                            <div class="item-card-header" onclick="toggleCheck(this)">
+                                <div class="custom-checkbox"></div>
+                                <span class="item-title">2. Install & Configure HAProxy <span
+                                        style="font-size: 0.65rem; background: var(--warning); color: #000; padding: 2px 6px; border-radius: 4px; margin-left: 8px;">RUN
+                                        ON LB SERVER</span></span>
+                                <span class="item-status">Pending</span>
+                            </div>
+                            <div class="item-body">
+                                <div class="code-block-wrapper">
+                                    <span class="code-label">Install HAProxy</span>
+                                    <div class="code-container">
+                                        <code>bash scripts/setup_haproxy.sh</code>
+                                        <button class="copy-btn">Copy</button>
+                                    </div>
+                                </div>
+                                <div class="note" style="grid-column: span 2;">
+                                    <strong>Saat interactive prompt:</strong><br>
+                                    - Masukkan IP semua CockroachDB nodes (comma-separated atau satu-satu)<br>
+                                    - Contoh: <code>192.168.2.114,192.168.2.115,192.168.2.116</code><br>
+                                    - Enable stats auth jika diperlukan monitoring dashboard
+                                </div>
+                                <div class="code-block-wrapper">
+                                    <span class="code-label">Verify HAProxy Status</span>
+                                    <div class="code-container">
+                                        <code>sudo systemctl status haproxy</code>
+                                        <button class="copy-btn">Copy</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- HAProxy Task 3 -->
+                        <div class="item-card" data-id="haproxy_test">
+                            <div class="item-card-header" onclick="toggleCheck(this)">
+                                <div class="custom-checkbox"></div>
+                                <span class="item-title">3. Test Connection via HAProxy <span
+                                        style="font-size: 0.65rem; background: var(--accent); color: #000; padding: 2px 6px; border-radius: 4px; margin-left: 8px;">VERIFICATION</span></span>
+                                <span class="item-status">Pending</span>
+                            </div>
+                            <div class="item-body">
+                                <div class="code-block-wrapper">
+                                    <span class="code-label">Connect via HAProxy (dari mana saja)</span>
+                                    <div class="code-container">
+                                        <code>cockroach sql --insecure --host=<HAPROXY_IP> --port=26257</code>
+                                        <button class="copy-btn">Copy</button>
+                                    </div>
+                                </div>
+                                <div class="code-block-wrapper">
+                                    <span class="code-label">Test Query</span>
+                                    <div class="code-container">
+                                        <code>SELECT * FROM cluster_test;</code>
+                                    </div>
+                                </div>
+                                <div class="code-block-wrapper">
+                                    <span class="code-label">Access HAProxy Stats Dashboard</span>
+                                    <div class="code-container">
+                                        <code>http://<HAPROXY_IP>:8081</code>
+                                        <button class="copy-btn">Copy</button>
+                                    </div>
+                                </div>
+                                <div class="note">Semua koneksi ke HAProxy akan didistribusikan ke 3 nodes secara
+                                    round-robin. Jika 1 node down, HAProxy otomatis route ke node yang healthy.</div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- SECTION 6: PGBOUNCER (OPTIONAL) -->
+                <section id="section_pgbouncer" class="section">
+                    <div class="section-header">
+                        <div class="section-number">06</div>
+                        <h2>PgBouncer Connection Pooler (Optional)</h2>
+                    </div>
+
+                    <div
+                        style="background: rgba(245, 158, 11, 0.1); border: 1px solid var(--warning); border-radius: 16px; padding: 15px; margin-bottom: 20px;">
+                        <p style="font-size: 0.9rem; color: var(--text-bright);">
+                            <strong>⚠️ Kapan Butuh PgBouncer?</strong><br>
+                            Hanya install PgBouncer jika aplikasi Anda memiliki <strong>>1000 concurrent
+                                connections</strong>. Untuk aplikasi dengan <100 connections, gunakan client-side
+                                pooling di aplikasi (HikariCP, pg-pool, dll). </p>
+                    </div>
+
+                    <div class="tutorial-card">
+                        <h3
+                            style="color: var(--text-bright); margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--primary)"
+                                stroke-width="2.5">
+                                <circle cx="12" cy="12" r="10" />
+                                <line x1="12" y1="16" x2="12" y2="12" />
+                                <line x1="12" y1="8" x2="12.01" y2="8" />
+                            </svg>
+                            Co-locate PgBouncer dengan HAProxy
+                        </h3>
+                        <p style="color: var(--text-main); margin-bottom: 12px;">
+                            Untuk cost efficiency, install PgBouncer di <strong>server HAProxy yang sama</strong>. Setup
+                            ini cocok untuk load 1000-10000 concurrent connections.
+                        </p>
+                        <div class="ip-example-grid">
+                            <div class="ip-box">
+                                <strong>Architecture</strong>
+                                <span>App → PgBouncer → HAProxy → CockroachDB</span>
+                            </div>
+                            <div class="ip-box">
+                                <strong>Connection Reduction</strong>
+                                <span>5000 clients → 24 DB connections</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="checklist-grid">
+                        <!-- PgBouncer Task 1 -->
+                        <div class="item-card" data-id="pgbouncer_install">
+                            <div class="item-card-header" onclick="toggleCheck(this)">
+                                <div class="custom-checkbox"></div>
+                                <span class="item-title">1. Install & Configure PgBouncer <span
+                                        style="font-size: 0.65rem; background: var(--warning); color: #000; padding: 2px 6px; border-radius: 4px; margin-left: 8px;">SAME
+                                        SERVER AS HAPROXY</span></span>
+                                <span class="item-status">Pending</span>
+                            </div>
+                            <div class="item-body">
+                                <div class="code-block-wrapper">
+                                    <span class="code-label">Install PgBouncer</span>
+                                    <div class="code-container">
+                                        <code>bash scripts/setup_pgbouncer.sh</code>
+                                        <button class="copy-btn">Copy</button>
+                                    </div>
+                                </div>
+                                <div class="note" style="grid-column: span 2;">
+                                    <strong>Saat interactive prompt:</strong><br>
+                                    - HAProxy IP: <code>localhost</code> (karena satu server)<br>
+                                    - Port: <code>26257</code><br>
+                                    - Total vCPU cluster: Contoh <code>6</code> (untuk 3 nodes × 2 CPU)<br>
+                                    - Pool size: Auto-calculated = 24 (4 × 6 vCPU)<br>
+                                    - Max client connections: Disesuaikan dengan RAM server
+                                </div>
+                                <div class="code-block-wrapper">
+                                    <span class="code-label">Verify PgBouncer Status</span>
+                                    <div class="code-container">
+                                        <code>sudo systemctl status pgbouncer
+netstat -tlnp | grep 6432</code>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- PgBouncer Task 2 -->
+                        <div class="item-card" data-id="pgbouncer_test">
+                            <div class="item-card-header" onclick="toggleCheck(this)">
+                                <div class="custom-checkbox"></div>
+                                <span class="item-title">2. Test Connection via PgBouncer <span
+                                        style="font-size: 0.65rem; background: var(--accent); color: #000; padding: 2px 6px; border-radius: 4px; margin-left: 8px;">VERIFICATION</span></span>
+                                <span class="item-status">Pending</span>
+                            </div>
+                            <div class="item-body">
+                                <div class="code-block-wrapper">
+                                    <span class="code-label">Connect via PgBouncer</span>
+                                    <div class="code-container">
+                                        <code>psql -h <HAPROXY_IP> -p 6432 -U root -d defaultdb</code>
+                                        <button class="copy-btn">Copy</button>
+                                    </div>
+                                </div>
+                                <div class="code-block-wrapper">
+                                    <span class="code-label">Monitor PgBouncer Pools</span>
+                                    <div class="code-container">
+                                        <code>psql -h localhost -p 6432 -U root -d pgbouncer
+SHOW POOLS;
+SHOW STATS;</code>
+                                        <button class="copy-btn">Copy</button>
+                                    </div>
+                                </div>
+                                <div class="note">
+                                    <strong>Update Application Connection String:</strong><br>
+                                    Dari: <code>postgresql://user:pass@haproxy-ip:26257/db</code><br>
+                                    Ke: <code>postgresql://user:pass@haproxy-ip:6432/db</code>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- PgBouncer Task 3 -->
+                        <div class="item-card" data-id="pgbouncer_monitor">
+                            <div class="item-card-header" onclick="toggleCheck(this)">
+                                <div class="custom-checkbox"></div>
+                                <span class="item-title">3. Monitor Pool Saturation <span
+                                        style="font-size: 0.65rem; background: var(--primary); color: #000; padding: 2px 6px; border-radius: 4px; margin-left: 8px;">ONGOING</span></span>
+                                <span class="item-status">Pending</span>
+                            </div>
+                            <div class="item-body">
+                                <div class="code-block-wrapper">
+                                    <span class="code-label">Check for Waiting Clients</span>
+                                    <div class="code-container">
+                                        <code>psql -h localhost -p 6432 -U root -d pgbouncer -c "SHOW POOLS;"</code>
+                                        <button class="copy-btn">Copy</button>
+                                    </div>
+                                </div>
+                                <div class="note" style="grid-column: span 2;">
+                                    <strong>Key Metrics:</strong><br>
+                                    - <code>cl_waiting</code>: Harus <5 (clients menunggu connection dari pool)<br>
+                                        - <code>sv_active</code>: Harus ≤24 (sesuai pool_size)<br>
+                                        - <code>maxwait</code>: Harus <5s (waktu tunggu maksimal)<br><br>
+                                            Jika <code>cl_waiting</code> tinggi, pertimbangkan increase
+                                            <code>pool_size</code>
+                                            atau scale up CockroachDB cluster.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- SECTION 7: OPTIMIZATION & MONITORING -->
+                <section id="section_opt" class="section">
+                    <div class="section-header">
+                        <div class="section-number">07</div>
                         <h2>SQL Optimization & Monitoring</h2>
                     </div>
 
@@ -1164,7 +1460,10 @@ Swap: 0B</code>
                                 <div class="code-block-wrapper">
                                     <span class="code-label">Contoh Schema yang BENAR</span>
                                     <div class="code-container">
-                                        <code>CREATE TABLE users (<br>  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),<br>  name TEXT<br>);</code>
+                                        <code>CREATE TABLE users (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name TEXT
+);</code>
                                         <button class="copy-btn">Copy</button>
                                     </div>
                                 </div>
@@ -1204,7 +1503,9 @@ Swap: 0B</code>
                                 <div class="code-block-wrapper">
                                     <span class="code-label">Cek Query Lambat (&gt;5s)</span>
                                     <div class="code-container">
-                                        <code>SELECT query, start, now() - start AS duration<br>FROM crdb_internal.node_queries<br>WHERE now() - start &gt; '5s';</code>
+                                        <code>SELECT query, start, now() - start AS duration
+FROM crdb_internal.node_queries
+WHERE now() - start > '5s';</code>
                                         <button class="copy-btn">Copy</button>
                                         <button class="copy-btn">Copy</button>
                                     </div>
@@ -1217,12 +1518,12 @@ Swap: 0B</code>
                 <!-- SECTION 6: SECURITY SETUP (NETWORK & TLS) -->
                 <section id="section_sec_setup" class="section">
                     <div class="section-header">
-                        <div class="section-number">06</div>
+                        <div class="section-number">08</div>
                         <h2>Security Setup (Network & TLS)</h2>
                     </div>
 
                     <div
-                        style="background: rgba(16, 185, 129, 0.1); border: 1px solid var(--success); border-radius: 16px; padding: 15px; margin-bottom: 20px;">
+                        style="background: rgba(99, 102, 241, 0.1); border: 1px solid var(--primary); border-radius: 16px; padding: 15px; margin-bottom: 20px;">
                         <p style="font-size: 0.9rem; color: var(--text-bright);">
                             <strong>Fase Kritis:</strong> Mengamankan jaringan (Firewall) dan mengaktifkan Enkripsi
                             (TLS) agar password authentication bisa digunakan.
@@ -1243,7 +1544,10 @@ Swap: 0B</code>
                                 <div class="code-block-wrapper">
                                     <span class="code-label">Batasi Akses SQL (Port 26257) & Web UI (8080)</span>
                                     <div class="code-container">
-                                        <code># Contoh UFW (Ubuntu)<br>sudo ufw allow from 192.168.2.0/24 to any port 26257 proto tcp<br>sudo ufw allow from 192.168.2.0/24 to any port 8080 proto tcp<br>sudo ufw delete allow 26257/tcp</code>
+                                        <code># Contoh UFW (Ubuntu)
+sudo ufw allow from 192.168.2.0/24 to any port 26257 proto tcp
+sudo ufw allow from 192.168.2.0/24 to any port 8080 proto tcp
+sudo ufw delete allow 26257/tcp</code>
                                         <button class="copy-btn">Copy</button>
                                     </div>
                                 </div>
@@ -1255,45 +1559,153 @@ Swap: 0B</code>
                         <div class="item-card" data-id="tls_ca">
                             <div class="item-card-header" onclick="toggleCheck(this)">
                                 <div class="custom-checkbox"></div>
-                                <span class="item-title">2. Generate CA & Node Certs (Di Node 1) <span
+                                <span class="item-title">2. Generate All Certificates <span
                                         style="font-size: 0.65rem; background: var(--primary); color: #000; padding: 2px 6px; border-radius: 4px; margin-left: 8px;">RUN
                                         ON NODE 1</span></span>
                                 <span class="item-status">Pending</span>
                             </div>
                             <div class="item-body">
                                 <div class="code-block-wrapper">
-                                    <span class="code-label">Buat Direktori & CA</span>
+                                    <span class="code-label">Run Automated Certificate Generator</span>
                                     <div class="code-container">
-                                        <code>mkdir certs my-safe-directory<br>cockroach cert create-ca --certs-dir=certs --ca-key=my-safe-directory/ca.key</code>
+                                        <code>bash scripts/generate_certs.sh</code>
                                         <button class="copy-btn">Copy</button>
                                     </div>
                                 </div>
-                                <div class="code-block-wrapper">
-                                    <span class="code-label">Generate Cert untuk Node 1</span>
-                                    <div class="code-container">
-                                        <code># Masukkan SEMUA IP/Hostname Node 1<br>cockroach cert create-node localhost 127.0.0.1 192.168.2.114 --certs-dir=certs --ca-key=my-safe-directory/ca.key</code>
-                                        <button class="copy-btn">Copy</button>
-                                    </div>
+                                <div class="note"
+                                    style="grid-column: span 2; background: rgba(99, 102, 241, 0.1); border-left: 3px solid var(--primary);">
+                                    <strong>💡 Script ini akan generate:</strong><br>
+                                    - CA certificate (ca.crt)<br>
+                                    - Node certificates untuk Node 1, 2, 3 (masing-masing punya node.crt + node.key
+                                    berbeda)<br>
+                                    - Client certificate untuk root user<br><br>
+                                    Masukkan IP setiap node saat diminta. Output tersimpan di
+                                    <code>~/cockroach-certs/</code>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- 3. TLS Client -->
-                        <div class="item-card" data-id="tls_client">
+                        <!-- 3. Transfer Certificates -->
+                        <div class="item-card" data-id="tls_transfer">
                             <div class="item-card-header" onclick="toggleCheck(this)">
                                 <div class="custom-checkbox"></div>
-                                <span class="item-title">3. Generate Client Cert (Root) <span
-                                        style="font-size: 0.65rem; background: var(--primary); color: #000; padding: 2px 6px; border-radius: 4px; margin-left: 8px;">RUN
-                                        ON NODE 1</span></span>
+                                <span class="item-title">3. Transfer Certificates to Each Node <span
+                                        style="font-size: 0.65rem; background: var(--warning); color: #000; padding: 2px 6px; border-radius: 4px; margin-left: 8px;">IMPORTANT</span></span>
                                 <span class="item-status">Pending</span>
                             </div>
                             <div class="item-body">
                                 <div class="code-block-wrapper">
-                                    <span class="code-label">Generate Root Cert</span>
+                                    <span class="code-label">🖥️ Node 1 (Current Node - Install Locally)</span>
                                     <div class="code-container">
-                                        <code>cockroach cert create-client root --certs-dir=certs --ca-key=my-safe-directory/ca.key</code>
+                                        <code>sudo mkdir -p /var/lib/cockroach/certs
+sudo cp ~/cockroach-certs/node1/* /var/lib/cockroach/certs/
+sudo chown -R cockroach:cockroach /var/lib/cockroach/certs
+sudo chmod 600 /var/lib/cockroach/certs/node.key</code>
                                         <button class="copy-btn">Copy</button>
                                     </div>
+                                </div>
+                                <div class="code-block-wrapper">
+                                    <span class="code-label">📤 Node 2 (Transfer via SCP)</span>
+                                    <div class="code-container">
+                                        <code># Di Node 1, transfer files:
+scp ~/cockroach-certs/node2/* user@192.168.2.115:~/
+
+# SSH ke Node 2, lalu install:
+ssh user@192.168.2.115
+sudo mkdir -p /var/lib/cockroach/certs
+sudo mv ~/ca.crt ~/node.crt ~/node.key /var/lib/cockroach/certs/
+sudo chown -R cockroach:cockroach /var/lib/cockroach/certs
+sudo chmod 600 /var/lib/cockroach/certs/node.key</code>
+                                        <button class="copy-btn">Copy</button>
+                                    </div>
+                                </div>
+                                <div class="code-block-wrapper">
+                                    <span class="code-label">📤 Node 3 (Transfer via SCP)</span>
+                                    <div class="code-container">
+                                        <code># Di Node 1, transfer files:
+scp ~/cockroach-certs/node3/* user@192.168.2.116:~/
+
+# SSH ke Node 3, lalu install:
+ssh user@192.168.2.116
+sudo mkdir -p /var/lib/cockroach/certs
+sudo mv ~/ca.crt ~/node.crt ~/node.key /var/lib/cockroach/certs/
+sudo chown -R cockroach:cockroach /var/lib/cockroach/certs
+sudo chmod 600 /var/lib/cockroach/certs/node.key</code>
+                                        <button class="copy-btn">Copy</button>
+                                    </div>
+                                </div>
+                                <div class="note" style="grid-column: span 2;">
+                                    ⚠️ <strong>PENTING:</strong><br>
+                                    - Setiap node harus punya <code>ca.crt</code> yang SAMA<br>
+                                    - Setiap node punya <code>node.crt</code> dan <code>node.key</code> yang BERBEDA
+                                    (sesuai IP-nya)<br>
+                                    - JANGAN transfer <code>ca.key</code> ke production servers! Simpan di tempat aman.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 4. Update Systemd Service -->
+                        <div class="item-card" data-id="tls_systemd">
+                            <div class="item-card-header" onclick="toggleCheck(this)">
+                                <div class="custom-checkbox"></div>
+                                <span class="item-title">4. Update Systemd Service (Remove --insecure) <span
+                                        style="font-size: 0.65rem; background: var(--warning); color: #000; padding: 2px 6px; border-radius: 4px; margin-left: 8px;">ON
+                                        ALL NODES</span></span>
+                                <span class="item-status">Pending</span>
+                            </div>
+                            <div class="item-body">
+                                <div class="code-block-wrapper">
+                                    <span class="code-label">Replace --insecure dengan --certs-dir</span>
+                                    <div class="code-container">
+                                        <code>sudo systemctl stop cockroach
+sudo sed -i 's/--insecure/--certs-dir=\/var\/lib\/cockroach\/certs/g' /etc/systemd/system/cockroach.service
+sudo systemctl daemon-reload
+sudo systemctl start cockroach
+sudo systemctl status cockroach</code>
+                                        <button class="copy-btn">Copy</button>
+                                    </div>
+                                </div>
+                                <div class="code-block-wrapper">
+                                    <span class="code-label">Verify Secure Connection</span>
+                                    <div class="code-container">
+                                        <code>cockroach sql --certs-dir=/var/lib/cockroach/certs --host=localhost</code>
+                                        <button class="copy-btn">Copy</button>
+                                    </div>
+                                </div>
+                                <div class="note">
+                                    Jalankan command ini di <strong>semua 3 nodes</strong>. Setelah restart, cluster
+                                    akan menggunakan TLS encryption untuk semua komunikasi.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 5. Client Certificate -->
+                        <div class="item-card" data-id="tls_client">
+                            <div class="item-card-header" onclick="toggleCheck(this)">
+                                <div class="custom-checkbox"></div>
+                                <span class="item-title">5. Setup Client Certificate (Optional) <span
+                                        style="font-size: 0.65rem; background: var(--accent); color: #000; padding: 2px 6px; border-radius: 4px; margin-left: 8px;">FOR
+                                        REMOTE ACCESS</span></span>
+                                <span class="item-status">Pending</span>
+                            </div>
+                            <div class="item-body">
+                                <div class="code-block-wrapper">
+                                    <span class="code-label">Copy Client Cert to ~/.cockroach-certs</span>
+                                    <div class="code-container">
+                                        <code>mkdir -p ~/.cockroach-certs
+cp ~/cockroach-certs/client/* ~/.cockroach-certs/</code>
+                                        <button class="copy-btn">Copy</button>
+                                    </div>
+                                </div>
+                                <div class="code-block-wrapper">
+                                    <span class="code-label">Test Remote Connection</span>
+                                    <div class="code-container">
+                                        <code>cockroach sql --certs-dir=~/.cockroach-certs --host=192.168.2.114</code>
+                                    </div>
+                                </div>
+                                <div class="note">
+                                    Client certificate tersimpan di <code>~/cockroach-certs/client/</code> setelah
+                                    menjalankan <code>generate_certs.sh</code>. Copy ke mesin yang perlu remote access.
                                 </div>
                             </div>
                         </div>
@@ -1331,7 +1743,9 @@ Swap: 0B</code>
                                 <div class="code-block-wrapper">
                                     <span class="code-label">Update Systemd Service</span>
                                     <div class="code-container">
-                                        <code># Hapus --insecure<br># Tambah --certs-dir=/var/lib/cockroach/certs<br>sudo systemctl daemon-reload && sudo systemctl restart cockroach</code>
+                                        <code># Hapus --insecure
+# Tambah --certs-dir=/var/lib/cockroach/certs
+sudo systemctl daemon-reload && sudo systemctl restart cockroach</code>
                                         <button class="copy-btn">Copy</button>
                                     </div>
                                 </div>
@@ -1343,7 +1757,7 @@ Swap: 0B</code>
                 <!-- SECTION 7: SECURITY HARDENING (USER & DATA) -->
                 <section id="section_sec_hardening" class="section">
                     <div class="section-header">
-                        <div class="section-number">07</div>
+                        <div class="section-number">09</div>
                         <h2>Security Hardening (User & Data)</h2>
                     </div>
 

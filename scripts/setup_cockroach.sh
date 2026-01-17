@@ -106,7 +106,7 @@ ExecStart=${INSTALL_DIR}/cockroach start \
     --join=${JOIN_ADDRS}
 Restart=always
 RestartSec=10
-LimitNOFILE=100000
+LimitNOFILE=infinity
 
 [Install]
 WantedBy=multi-user.target
@@ -135,7 +135,8 @@ echo "  - SQL Memory: ${SQL_MEM_MIB}MiB"
 echo ""
 echo "Next Steps:"
 echo "1. Start the service:"
-echo "   sudo systemctl enable --now cockroach"
+echo "   sudo systemctl start cockroach"
+echo "   sudo systemctl enable cockroach"
 echo ""
 echo "2. Verify it's running:"
 echo "   ps aux | grep cockroach | grep -v grep"

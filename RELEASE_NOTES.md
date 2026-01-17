@@ -1,33 +1,39 @@
 # Release Notes
 
-## Version 1.2 (2026-01-15)
+## Version 1.3 (2026-01-17)
 
-### New Features v1.2 (🎉)
+### New Features v1.3 (🎉)
 
-- **Interactive HTML Checklist**: Complete web-based progress tracker with auto-save functionality
-- **Auto-Detection Enhancement**: Full support for ARM64 (Apple Silicon, AWS Graviton)
-- **HAProxy Interactive Prompt**: No more hardcoded localhost, script asks for node IPs
-- **Consolidated Documentation**: All guides merged into single interactive experience
+- **Fully Adaptive Optimization**: All installation and load balancer scripts now dynamically calculate parameters (`maxconn`, `timeout`, `somaxconn`, `file-max`) based on actual server RAM and CPU.
+- **PgBouncer Integration**: New `setup_pgbouncer.sh` script for production environments with high connection loads (>1000 concurrent connections).
+- **Automated Certificate Authority**: New `generate_certs.sh` script that automates the generation of CA, Node, and Client certificates for secure clusters.
+- **Dedicated Load Balancer OS Tuning**: New `setup_loadbalancer_os.sh` specifically for optimizing HAProxy/PgBouncer servers.
+- **Premium Dashboard Theme**: `index.html` overhauled with a modern Slate & Indigo theme, improved readability, and a more logical installation flow.
 
-### Improvements v1.2 (🛠️)
+### Improvements v1.3 (🛠️)
 
-- **Error Handling**: Enhanced download failure detection in installation scripts
-- **Variable Safety**: Added fallback for `$VERSION_ID` in non-standard distros
-- **Shebang Addition**: All scripts now have proper `#!/bin/bash` header
+- **Transparent Huge Pages (THP)**: Added `madvise` mode configuration as recommended by CockroachDB.
+- **Enhanced Scheduling**: All systemd services now use `LimitNOFILE=infinity` for unlimited file descriptors.
+- **Multi-Threading**: HAProxy now automatically detects CPU cores and sets `nbthread` accordingly.
+- **Load Balancing Logic**: Switched default HAProxy algorithm to `roundrobin` per CockroachDB official best practices.
+- **Better Security**: Added automated firewall rules for PgBouncer (6432) and HAProxy Stats (8081).
 
 ### 🐛 Bug Fixes
 
-- Fixed missing shebang in `setup_os.sh` and `setup_cockroach.sh`
-- Fixed HAProxy localhost hardcoding issue
-- Fixed VERSION_ID undefined variable error on custom Linux distros
+- Fixed `leastconn` balancing which could cause hotspots; reverted to `roundrobin`.
+- Removed redundant manual certificate generation steps in the interactive guide.
+- Fixed timezone detection to be interactive instead of hardcoded.
+- Improved terminal contrast in the interactive dashboard for long-term usage.
 
 ### 📚 Documentation
 
-- Added comprehensive migration guide from PostgreSQL
-- Added failover testing procedures with Multipass examples
-- Added troubleshooting section with common issues
+- Added `LOADBALANCER_OPTIMIZATION.md` with detailed adaptive parameter calculations.
+- Updated `README.md` with new scripts and a production-grade deployment flow.
+- Added architectural diagrams with PgBouncer co-location guidance.
 
 ---
+
+## Version 1.2 (2026-01-15)
 
 ## Version 1.1 (2026-01-14)
 
@@ -61,11 +67,13 @@
 
 ### Upcoming Features
 
-- [ ] TLS/SSL certificate auto-generation scripts
+- [x] TLS/SSL certificate auto-generation scripts (v1.3)
 - [ ] Prometheus & Grafana integration templates
 - [ ] Ansible playbook for multi-node deployment
 - [ ] Backup & restore automation scripts
 - [ ] Performance benchmarking tools (TPC-C/YCSB)
+- [ ] Dynamic cluster auto-scaling scripts
+- [ ] Multi-region cluster configuration guide
 
 ---
 
