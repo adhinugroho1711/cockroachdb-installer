@@ -143,11 +143,8 @@ listen cockroachdb
     bind *:26257
     mode tcp
     balance roundrobin
+    # Simple TCP check (more reliable for various environments)
     option tcp-check
-    
-    # CockroachDB health check (PostgreSQL wire protocol handshake)
-    tcp-check send-binary 50524f544f434f4c20434f4e4e4543542053514c0a
-    tcp-check expect string SQL
     
     # Backend servers
 EOF
