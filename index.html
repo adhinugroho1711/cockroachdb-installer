@@ -1357,7 +1357,8 @@ somaxconn: 1024
                                 </div>
                                 <div class="note" style="grid-column: span 2;">
                                     <strong>Saat interactive prompt:</strong><br>
-                                    - HAProxy IP: <code>localhost</code> (karena satu server)<br>
+                                    - HAProxy IP: <code>127.0.0.1</code> (PENTING: gunakan IP, bukan 'localhost' untuk
+                                    menghindari IPv6 issue)<br>
                                     - Port: <code>26257</code><br>
                                     - Password: <strong>Kosongkan</strong> jika cluster mode <code>--insecure</code>
                                     (Auth otomatis menjadi <code>trust</code>)<br>
@@ -1370,6 +1371,12 @@ somaxconn: 1024
                                         <code>sudo systemctl status pgbouncer
 netstat -tlnp | grep 6432</code>
                                     </div>
+                                </div>
+                                <div class="note"
+                                    style="background: rgba(245, 158, 11, 0.1); border-left: 3px solid var(--warning); padding: 10px;">
+                                    <strong>⚠️ Troubleshooting:</strong> Jika service gagal start dengan error "No such
+                                    file or directory" untuk pidfile, jalankan:<br>
+                                    <code>sudo mkdir -p /var/run/pgbouncer && sudo chown postgres:postgres /var/run/pgbouncer</code>
                                 </div>
                             </div>
                         </div>

@@ -74,8 +74,8 @@ echo "=============================================="
 echo ""
 
 # Get HAProxy IP (or first CockroachDB node IP)
-read -p "Enter HAProxy IP (or CockroachDB node IP) [localhost]: " CRDB_HOST
-CRDB_HOST=${CRDB_HOST:-localhost}
+read -p "Enter HAProxy IP (or CockroachDB node IP) [127.0.0.1]: " CRDB_HOST
+CRDB_HOST=${CRDB_HOST:-127.0.0.1}
 
 read -p "Enter CockroachDB port [26257]: " CRDB_PORT
 CRDB_PORT=${CRDB_PORT:-26257}
