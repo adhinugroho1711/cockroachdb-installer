@@ -133,6 +133,7 @@ ${DATABASE} = host=${CRDB_HOST} port=${CRDB_PORT} dbname=${DATABASE}
 # Connection settings
 listen_addr = *
 listen_port = 6432
+unix_socket_dir = /var/run/postgresql
 
 # Authentication
 auth_type = ${AUTH_TYPE}
@@ -162,6 +163,8 @@ stats_users = ${DB_USER}
 log_connections = 1
 log_disconnections = 1
 log_pooler_errors = 1
+logfile = /var/log/pgbouncer/pgbouncer.log
+pidfile = /var/run/pgbouncer/pgbouncer.pid
 
 # Performance
 server_reset_query = DISCARD ALL
@@ -175,6 +178,13 @@ ignore_startup_parameters = extra_float_digits,options
 # server_tls_sslmode = require
 # server_tls_ca_file = /var/lib/cockroach/certs/ca.crt
 EOF
+
+# Ensure proper permissions and directories
+sudo mkdir -p /var/log/pgbouncer /var/run/pgbouncer /var/run/postgresql
+sudo chown -R postgres:postgres /var/log/pgbouncer /var/run/pgbouncer /var/run/postgresql
+sudo chown postgres:postgres /etc/pgbouncer/pgbouncer.ini
+sudo chmod 644 /etc/pgbouncer/pgbouncer.ini
+
 
 # 6. Create userlist.txt (authentication file)
 echo "Creating user authentication file..."
