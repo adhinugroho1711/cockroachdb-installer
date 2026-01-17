@@ -116,8 +116,15 @@ if [ -f /etc/pgbouncer/pgbouncer.ini ]; then
     echo "Backed up existing config"
 fi
 
+# Determine auth type based on password
+if [ -z "$DB_PASSWORD" ]; then
+    AUTH_TYPE="trust"
+else
+    AUTH_TYPE="md5"
+fi
+
 # 5. Create PgBouncer configuration
-echo "Creating PgBouncer configuration..."
+echo "Creating PgBouncer configuration (Auth Type: $AUTH_TYPE)..."
 cat <<EOF | sudo tee /etc/pgbouncer/pgbouncer.ini
 [databases]
 ${DATABASE} = host=${CRDB_HOST} port=${CRDB_PORT} dbname=${DATABASE}
@@ -128,7 +135,7 @@ listen_addr = *
 listen_port = 6432
 
 # Authentication
-auth_type = md5
+auth_type = ${AUTH_TYPE}
 auth_file = /etc/pgbouncer/userlist.txt
 
 # Connection pooling
