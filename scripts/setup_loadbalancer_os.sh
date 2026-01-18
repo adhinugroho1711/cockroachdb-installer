@@ -62,7 +62,18 @@ elif systemctl list-unit-files | grep -q chronyd; then
     sudo systemctl start chronyd || true
 fi
 
-# 5. Adaptive Kernel Parameters for Load Balancer/Proxy Server
+# 5. Load connection tracking module FIRST (before sysctl)
+echo ""
+echo "Loading connection tracking kernel module..."
+if ! lsmod | grep -q nf_conntrack; then
+    sudo modprobe nf_conntrack 2>/dev/null || echo "⚠️  Warning: nf_conntrack module not available (not critical for basic operation)"
+fi
+# Ensure it loads on boot
+if ! grep -q "nf_conntrack" /etc/modules 2>/dev/null; then
+    echo "nf_conntrack" | sudo tee -a /etc/modules >/dev/null
+fi
+
+# 6. Adaptive Kernel Parameters for Load Balancer/Proxy Server
 echo ""
 echo "Optimizing kernel parameters for HAProxy/PgBouncer workload..."
 
@@ -148,11 +159,22 @@ net.ipv4.tcp_keepalive_intvl = 30
 net.ipv4.tcp_keepalive_probes = 3
 net.ipv4.tcp_slow_start_after_idle = 0
 
+EOF
+
+# Add connection tracking parameters only if module is loaded
+if lsmod | grep -q nf_conntrack; then
+    cat <<EOF | sudo tee -a /etc/sysctl.d/99-haproxy-pgbouncer.conf
 # Connection Tracking (for high concurrent connections)
 net.netfilter.nf_conntrack_max = $((SOMAXCONN * 4))
 net.netfilter.nf_conntrack_tcp_timeout_time_wait = 30
 net.netfilter.nf_conntrack_tcp_timeout_close_wait = 15
 
+EOF
+else
+    echo "# Connection tracking parameters skipped (nf_conntrack module not available)" | sudo tee -a /etc/sysctl.d/99-haproxy-pgbouncer.conf
+fi
+
+cat <<EOF | sudo tee -a /etc/sysctl.d/99-haproxy-pgbouncer.conf
 # Memory Management (less aggressive swap for proxy workload)
 vm.swappiness = 1
 vm.dirty_ratio = 15
@@ -233,11 +255,6 @@ elif command -v firewall-cmd >/dev/null; then
     sudo firewall-cmd --reload
 fi
 
-# 10. Verify kernel module for connection tracking
-echo ""
-echo "Loading connection tracking module..."
-sudo modprobe nf_conntrack || true
-echo "nf_conntrack" | sudo tee -a /etc/modules
 
 echo ""
 echo "=========================================="
