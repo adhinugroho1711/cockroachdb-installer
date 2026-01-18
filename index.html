@@ -2300,15 +2300,21 @@ sudo systemctl daemon-reload && sudo systemctl restart cockroach</code>
                     </div>
                     <div class="item-body">
                         <div class="code-block-wrapper">
-                            <span class="code-label">Download & Install Binary</span>
+                            <span class="code-label">Download & Install Binary (Linux AMD64)</span>
                             <div class="code-container">
-                                <code>curl https://binaries.cockroachdb.com/molt/molt.latest.linux-amd64.tar.gz | tar -xz
-sudo mv molt /usr/local/bin/</code>
+                                <code>curl -L https://molt.cockroachdb.com/molt/cli/molt-latest.linux-amd64.tgz | tar -xz
+sudo mv molt /usr/local/bin/
+molt version</code>
                                 <button class="copy-btn">Copy</button>
                             </div>
                         </div>
-                        <div class="note">Jalankan di mesin yang bisa akses PostgreSQL (5432) dan CockroachDB
-                            (26257).</div>
+                        <div class="note" style="border-left-color: #f59e0b; background: rgba(245, 158, 11, 0.1);">
+                            ⚠️ <strong>Penting:</strong><br>
+                            • Jalankan di mesin yang bisa akses PostgreSQL (5432) dan CockroachDB (26257)<br>
+                            • <strong>MOLT harus connect langsung ke CockroachDB (port 26257), BUKAN via PgBouncer
+                                (6432)</strong><br>
+                            • Gunakan IP node CockroachDB atau HAProxy yang forward ke port 26257
+                        </div>
                     </div>
                 </div>
 
@@ -2324,15 +2330,22 @@ sudo mv molt /usr/local/bin/</code>
                         <div class="code-block-wrapper">
                             <span class="code-label">Cek Kompatibilitas Schema</span>
                             <div class="code-container">
-                                <code>./molt verify schema \
-  --source "postgres://user:pass@pg-host:5432/dbname" \
-  --target "postgres://user:pass@crdb-host:26257/dbname"</code>
+                                <code># Contoh: PostgreSQL lokal ke CockroachDB remote
+./molt verify schema \
+  --source "postgres://postgres:password@localhost:5432/test" \
+  --target "postgres://root:@192.168.2.22:26257/test"
+
+# PENTING: Gunakan port 26257 (CockroachDB), BUKAN 6432 (PgBouncer)</code>
                                 <button class="copy-btn">Copy</button>
                             </div>
                         </div>
-                        <div class="note">Identifikasi perbedaan data types, triggers, atau extensions sebelum
-                            migrasi. Lihat <a href="./POSTGRES_MIGRATION.md" style="color: var(--accent);">Panduan
-                                Lengkap (Markdown)</a>.</div>
+                        <div class="note">
+                            Identifikasi perbedaan data types, triggers, atau extensions sebelum migrasi.<br>
+                            <strong>Troubleshooting:</strong> Jika error "failed to connect", pastikan:<br>
+                            • Menggunakan port <code>26257</code> (CockroachDB), bukan <code>6432</code> (PgBouncer)<br>
+                            • Firewall membuka port 26257<br>
+                            • Credentials benar (default user CockroachDB: <code>root</code>)
+                        </div>
                     </div>
                 </div>
 
@@ -2345,17 +2358,137 @@ sudo mv molt /usr/local/bin/</code>
                         <span class="item-status">Pending</span>
                     </div>
                     <div class="item-body">
+                        <div class="tutorial-card" style="margin-bottom: 15px;">
+                            <h4 style="margin-top: 0; color: var(--text-bright);">Pilih Metode Transfer Data</h4>
+                            <p style="font-size: 0.9rem; margin-bottom: 10px;">MOLT fetch memerlukan salah satu dari 3
+                                opsi transfer:</p>
+                        </div>
+
+                        <!-- Option 1: Direct Copy -->
                         <div class="code-block-wrapper">
-                            <span class="code-label">Migrasi Data Full Copy</span>
+                            <span class="code-label">Opsi 1: Direct Copy (Tercepat - Recommended untuk LAN)</span>
                             <div class="code-container">
-                                <code>./molt fetch \
-  --source "postgres://user:pass@pg-host:5432/dbname" \
-  --target "postgres://user:pass@crdb-host:26257/dbname"</code>
+                                <code># Streaming langsung source → target
+./molt fetch \
+  --source "postgres://postgres:@localhost:5432/test" \
+  --target "postgres://root:@192.168.2.22:26257/test" \
+  --direct-copy</code>
                                 <button class="copy-btn">Copy</button>
                             </div>
                         </div>
-                        <div class="note">Gunakan <code>fetch</code> untuk database skala kecil-menengah. Untuk
-                            skala TB, gunakan <code>IMPORT</code> command.</div>
+                        <div class="note"
+                            style="background: rgba(34, 197, 94, 0.1); border-left-color: #22c55e; margin-bottom: 15px;">
+                            ✅ <strong>Keuntungan:</strong> Paling cepat, tidak butuh disk space tambahan<br>
+                            ⚠️ <strong>Kekurangan:</strong> Tidak bisa resume jika gagal, butuh koneksi stabil
+                        </div>
+
+                        <!-- Option 2: Local Path -->
+                        <div class="code-block-wrapper">
+                            <span class="code-label">Opsi 2: Local Path (Paling Aman - Recommended untuk data
+                                besar)</span>
+                            <div class="code-container">
+                                <code># Export ke disk lokal, lalu import
+mkdir -p ~/molt-migration
+./molt fetch \
+  --source "postgres://postgres:@localhost:5432/test" \
+  --target "postgres://root:@192.168.2.22:26257/test" \
+  --local-path ~/molt-migration</code>
+                                <button class="copy-btn">Copy</button>
+                            </div>
+                        </div>
+                        <div class="note"
+                            style="background: rgba(59, 130, 246, 0.1); border-left-color: #3b82f6; margin-bottom: 15px;">
+                            ✅ <strong>Keuntungan:</strong> Bisa resume, bisa inspect data sebelum import<br>
+                            ⚠️ <strong>Kekurangan:</strong> Butuh disk space (2x ukuran database), lebih lambat
+                        </div>
+
+                        <!-- Option 3: Cloud Bucket -->
+                        <div class="code-block-wrapper">
+                            <span class="code-label">Opsi 3: Cloud Bucket (Untuk Production/Multi-Region)</span>
+                            <div class="code-container">
+                                <code># Via Google Cloud Storage (atau S3/Azure)
+./molt fetch \
+  --source "postgres://postgres:@localhost:5432/test" \
+  --target "postgres://root:@192.168.2.22:26257/test" \
+  --bucket-path "gs://my-bucket/molt-migration"</code>
+                                <button class="copy-btn">Copy</button>
+                            </div>
+                        </div>
+                        <div class="note" style="background: rgba(168, 85, 247, 0.1); border-left-color: #a855f7;">
+                            ✅ <strong>Keuntungan:</strong> Scalable untuk TB+ data, parallel processing<br>
+                            ⚠️ <strong>Kekurangan:</strong> Butuh setup cloud credentials, biaya storage
+                        </div>
+
+                        <div class="note"
+                            style="margin-top: 15px; border-left-color: #f59e0b; background: rgba(245, 158, 11, 0.1);">
+                            💡 <strong>Rekomendasi:</strong><br>
+                            • Database < 10GB + LAN stabil: Gunakan <code>--direct-copy</code><br>
+                                • Database 10-100GB atau koneksi tidak stabil: Gunakan <code>--local-path</code><br>
+                                • Database > 100GB atau cross-region: Gunakan <code>--bucket-path</code>
+                        </div>
+
+                        <!-- Critical: Pre-Migration Steps -->
+                        <div class="tutorial-card" style="margin-top: 20px; border-left: 4px solid #f43f5e;">
+                            <h4 style="margin-top: 0; color: #f43f5e;">🔴 PENTING: Langkah Sebelum MOLT Fetch</h4>
+
+                            <p style="font-size: 0.9rem; margin-bottom: 10px;"><strong>Step 1:</strong> Export & Import
+                                Schema ke CockroachDB</p>
+                            <div class="code-container" style="margin-bottom: 10px;">
+                                <code># Export schema dari PostgreSQL
+pg_dump -h localhost -U postgres -d test --schema-only -f schema.sql
+
+# Import ke CockroachDB
+psql "postgres://root:@192.168.2.22:26257/test" -f schema.sql</code>
+                                <button class="copy-btn">Copy</button>
+                            </div>
+
+                            <p style="font-size: 0.9rem; margin-bottom: 10px;"><strong>Step 2:</strong> Drop Foreign Key
+                                Constraints (Wajib!)</p>
+                            <div class="code-container" style="margin-bottom: 10px;">
+                                <code># Lihat FK yang ada
+cockroach sql --insecure --host=CRDB_IP --port=26257 --database=test -e "
+SELECT table_name, constraint_name FROM information_schema.table_constraints 
+WHERE constraint_type = 'FOREIGN KEY' AND table_schema = 'public';"
+
+# Drop FK (sesuaikan dengan output di atas)
+cockroach sql --insecure --host=CRDB_IP --port=26257 --database=test -e "
+ALTER TABLE order_items DROP CONSTRAINT IF EXISTS order_items_order_id_fkey;
+ALTER TABLE order_items DROP CONSTRAINT IF EXISTS order_items_product_id_fkey;
+ALTER TABLE orders DROP CONSTRAINT IF EXISTS orders_customer_id_fkey;"</code>
+                                <button class="copy-btn">Copy</button>
+                            </div>
+
+                            <p style="font-size: 0.9rem; margin-bottom: 10px;"><strong>Step 3:</strong> Truncate jika
+                                ada data sisa (re-run migration)</p>
+                            <div class="code-container">
+                                <code>cockroach sql --insecure --host=CRDB_IP --port=26257 --database=test -e "
+TRUNCATE TABLE order_items, orders, products, customers CASCADE;"</code>
+                                <button class="copy-btn">Copy</button>
+                            </div>
+                        </div>
+
+                        <!-- Post-Migration Steps -->
+                        <div class="tutorial-card" style="margin-top: 15px; border-left: 4px solid #22c55e;">
+                            <h4 style="margin-top: 0; color: #22c55e;">🟢 Langkah Setelah MOLT Fetch Berhasil</h4>
+
+                            <p style="font-size: 0.9rem; margin-bottom: 10px;"><strong>Re-add Foreign Key
+                                    Constraints:</strong></p>
+                            <div class="code-container">
+                                <code># Sesuaikan nama kolom dengan schema Anda
+cockroach sql --insecure --host=CRDB_IP --port=26257 --database=test -e "
+ALTER TABLE orders ADD CONSTRAINT orders_customer_id_fkey 
+  FOREIGN KEY (customer_id) REFERENCES customers(customer_id);
+ALTER TABLE order_items ADD CONSTRAINT order_items_order_id_fkey 
+  FOREIGN KEY (order_id) REFERENCES orders(order_id);
+ALTER TABLE order_items ADD CONSTRAINT order_items_product_id_fkey 
+  FOREIGN KEY (product_id) REFERENCES products(product_id);"</code>
+                                <button class="copy-btn">Copy</button>
+                            </div>
+                            <div class="note" style="margin-top: 10px; font-size: 0.85rem;">
+                                💡 Jika error "column does not exist", cek nama kolom PK dengan:
+                                <code>SHOW COLUMNS FROM table_name;</code>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -2369,16 +2502,54 @@ sudo mv molt /usr/local/bin/</code>
                     </div>
                     <div class="item-body">
                         <div class="code-block-wrapper">
-                            <span class="code-label">Bandingkan Data Source vs Target</span>
+                            <span class="code-label">Verifikasi Data Setelah Migrasi (Schema + Rows)</span>
                             <div class="code-container">
-                                <code>./molt verify data \
-  --source "postgres://user:pass@pg-host:5432/dbname" \
-  --target "postgres://user:pass@crdb-host:26257/dbname"</code>
+                                <code># Verifikasi lengkap (schema + data content)
+./molt verify \
+  --source "postgres://postgres:@localhost:5432/test" \
+  --target "postgres://root:@192.168.2.22:26257/test"</code>
                                 <button class="copy-btn">Copy</button>
                             </div>
                         </div>
-                        <div class="note">Memastikan jumlah row dan konten data identik antara Postgres dan
-                            CockroachDB.</div>
+                        <div class="note"
+                            style="background: rgba(34, 197, 94, 0.1); border-left-color: #22c55e; margin-bottom: 15px;">
+                            ✅ Command ini akan:<br>
+                            • Membandingkan schema (tabel, kolom, tipe data)<br>
+                            • Membandingkan jumlah rows di setiap tabel<br>
+                            • Membandingkan data content dengan checksum<br>
+                            • Melaporkan perbedaan jika ada
+                        </div>
+
+                        <!-- Additional Verification Options -->
+                        <div class="code-block-wrapper">
+                            <span class="code-label">Opsi: Verifikasi Schema Saja (Lebih Cepat)</span>
+                            <div class="code-container">
+                                <code>./molt verify \
+  --source "postgres://postgres:@localhost:5432/test" \
+  --target "postgres://root:@192.168.2.22:26257/test" \
+  --rows=false</code>
+                                <button class="copy-btn">Copy</button>
+                            </div>
+                        </div>
+
+                        <div class="code-block-wrapper">
+                            <span class="code-label">Opsi: Verifikasi Tabel Tertentu</span>
+                            <div class="code-container">
+                                <code>./molt verify \
+  --source "postgres://postgres:@localhost:5432/test" \
+  --target "postgres://root:@192.168.2.22:26257/test" \
+  --table-filter "^(users|orders)$"</code>
+                                <button class="copy-btn">Copy</button>
+                            </div>
+                        </div>
+
+                        <div class="note" style="border-left-color: #f59e0b; background: rgba(245, 158, 11, 0.1);">
+                            💡 <strong>Best Practice:</strong><br>
+                            1. Verify schema sebelum migrasi (<code>--rows=false</code>)<br>
+                            2. Jalankan <code>molt fetch</code> untuk migrasi data<br>
+                            3. Verify data setelah migrasi (default: schema + rows)<br>
+                            4. Simpan log untuk audit: <code>--log-file verify-post-migration.log</code>
+                        </div>
                     </div>
                 </div>
             </div>
