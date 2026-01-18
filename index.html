@@ -791,6 +791,8 @@
                             Hardening</a></li>
                     <li><a href="#section_migration" class="toc-link"><span class="toc-number">10</span> Migration
                             Guide</a></li>
+                    <li><a href="#section_backup" class="toc-link"><span class="toc-number">11</span> Backup &
+                            Restore</a></li>
                 </ul>
             </div>
 
@@ -2555,7 +2557,339 @@ ALTER TABLE order_items ADD CONSTRAINT order_items_product_id_fkey
             </div>
         </section>
 
-        <!-- SECTION 11: MULTI-SITE DISASTER RECOVERY -->
+        <!-- SECTION 11: BACKUP & RESTORE -->
+        <section id="section_backup" class="section">
+            <div class="section-header">
+                <div class="section-number">11</div>
+                <h2>Backup & Restore</h2>
+            </div>
+
+            <div class="tutorial-card" style="margin-bottom: 20px;">
+                <h3
+                    style="color: var(--text-bright); margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--primary)"
+                        stroke-width="2.5">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="7 10 12 15 17 10"></polyline>
+                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                    </svg>
+                    Backup Strategy for Production
+                </h3>
+                <p style="color: var(--text-main); margin-bottom: 12px;">
+                    CockroachDB backup menggunakan <strong>BACKUP</strong> command dengan dukungan full, incremental,
+                    dan point-in-time recovery.
+                    Untuk GDPR compliance, pastikan backup retention policy sesuai regulasi.
+                </p>
+                <div class="ip-example-grid">
+                    <div class="ip-box">
+                        <strong>Full Backup</strong>
+                        <span>Snapshot lengkap database</span>
+                    </div>
+                    <div class="ip-box">
+                        <strong>Incremental</strong>
+                        <span>Hanya perubahan sejak backup terakhir</span>
+                    </div>
+                    <div class="ip-box">
+                        <strong>Point-in-Time</strong>
+                        <span>Restore ke timestamp tertentu</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="checklist-grid">
+                <!-- Task 1: Full Backup -->
+                <div class="item-card" data-id="backup_full">
+                    <div class="item-card-header" onclick="toggleCheck(this)">
+                        <div class="custom-checkbox"></div>
+                        <span class="item-title">1. Full Database Backup <span
+                                style="font-size: 0.65rem; background: var(--primary); color: #000; padding: 2px 6px; border-radius: 4px; margin-left: 8px;">RECOMMENDED</span></span>
+                        <span class="item-status">Pending</span>
+                    </div>
+                    <div class="item-body">
+                        <div class="code-block-wrapper">
+                            <span class="code-label">Metode 1: Manual Backup via SQL</span>
+                            <div class="code-container">
+                                <code># Backup ke local storage node
+cockroach sql --insecure --host=NODE_IP --port=26257 -e "
+BACKUP DATABASE your_database 
+INTO 'nodelocal://self/backups/full-$(date +%Y%m%d)' 
+WITH revision_history;"</code>
+                                <button class="copy-btn">Copy</button>
+                            </div>
+                        </div>
+
+                        <div class="code-block-wrapper">
+                            <span class="code-label">Metode 2: Automated Backup Script (Recommended)</span>
+                            <div class="code-container">
+                                <code># Menggunakan script otomatis
+bash scripts/backup_cockroach.sh your_database
+
+# Check backup log
+tail -f /var/log/cockroach-backup.log</code>
+                                <button class="copy-btn">Copy</button>
+                            </div>
+                        </div>
+
+                        <div class="note" style="background: rgba(59, 130, 246, 0.1); border-left-color: #3b82f6;">
+                            💡 <strong>Tip:</strong> Script otomatis mendukung:<br>
+                            • Full + Incremental backup<br>
+                            • Retention policy (default: 30 hari)<br>
+                            • Backup verification<br>
+                            • Logging dan error handling
+                        </div>
+
+                        <div class="code-block-wrapper">
+                            <span class="code-label">Backup ke Cloud Storage (Production)</span>
+                            <div class="code-container">
+                                <code># Google Cloud Storage
+cockroach sql --insecure --host=NODE_IP --port=26257 -e "
+BACKUP DATABASE your_database 
+INTO 'gs://your-bucket/backups/$(date +%Y%m%d)';"
+
+# AWS S3
+cockroach sql --insecure --host=NODE_IP --port=26257 -e "
+BACKUP DATABASE your_database 
+INTO 's3://your-bucket/backups?AWS_ACCESS_KEY_ID=xxx&AWS_SECRET_ACCESS_KEY=yyy';"</code>
+                                <button class="copy-btn">Copy</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Task 2: Incremental Backup -->
+                <div class="item-card" data-id="backup_incremental">
+                    <div class="item-card-header" onclick="toggleCheck(this)">
+                        <div class="custom-checkbox"></div>
+                        <span class="item-title">2. Incremental Backup (Efficient) <span
+                                style="font-size: 0.65rem; background: var(--success); color: #000; padding: 2px 6px; border-radius: 4px; margin-left: 8px;">PRODUCTION</span></span>
+                        <span class="item-status">Pending</span>
+                    </div>
+                    <div class="item-body">
+                        <div class="code-block-wrapper">
+                            <span class="code-label">Setup: Full Backup Dulu</span>
+                            <div class="code-container">
+                                <code># 1. Buat full backup pertama
+cockroach sql --insecure --host=NODE_IP --port=26257 -e "
+BACKUP DATABASE your_database 
+INTO 'nodelocal://self/backups/base-backup';"</code>
+                                <button class="copy-btn">Copy</button>
+                            </div>
+                        </div>
+
+                        <div class="code-block-wrapper">
+                            <span class="code-label">Incremental Backup (Jalankan Berkala)</span>
+                            <div class="code-container">
+                                <code># 2. Incremental backup (hanya perubahan)
+cockroach sql --insecure --host=NODE_IP --port=26257 -e "
+BACKUP DATABASE your_database 
+INTO LATEST IN 'nodelocal://self/backups/base-backup';"</code>
+                                <button class="copy-btn">Copy</button>
+                            </div>
+                        </div>
+
+                        <div class="note" style="background: rgba(34, 197, 94, 0.1); border-left-color: #22c55e;">
+                            ✅ <strong>Keuntungan Incremental:</strong><br>
+                            • Lebih cepat (hanya backup perubahan)<br>
+                            • Hemat storage (size lebih kecil)<br>
+                            • Bisa dijalankan lebih sering (setiap jam)<br>
+                            • Cocok untuk database besar (>100GB)
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Task 3: Scheduled Backup -->
+                <div class="item-card" data-id="backup_scheduled">
+                    <div class="item-card-header" onclick="toggleCheck(this)">
+                        <div class="custom-checkbox"></div>
+                        <span class="item-title">3. Setup Automated Scheduled Backup <span
+                                style="font-size: 0.65rem; background: var(--warning); color: #000; padding: 2px 6px; border-radius: 4px; margin-left: 8px;">CRITICAL</span></span>
+                        <span class="item-status">Pending</span>
+                    </div>
+                    <div class="item-body">
+                        <div class="code-block-wrapper">
+                            <span class="code-label">Setup Cron Job Automation</span>
+                            <div class="code-container">
+                                <code># Jalankan setup wizard
+bash scripts/setup_backup_automation.sh your_database
+
+# Pilih schedule:
+# 1. Daily at 2 AM (Recommended)
+# 2. Daily full + Hourly incremental
+# 3. Every 6 hours
+# 4. Custom schedule</code>
+                                <button class="copy-btn">Copy</button>
+                            </div>
+                        </div>
+
+                        <div class="code-block-wrapper">
+                            <span class="code-label">Manual Cron Setup</span>
+                            <div class="code-container">
+                                <code># Edit crontab untuk user cockroach
+sudo crontab -u cockroach -e
+
+# Tambahkan line ini untuk backup setiap hari jam 2 pagi:
+0 2 * * * /path/to/scripts/backup_cockroach.sh your_database >> /var/log/cockroach-backups/backup.log 2>&1</code>
+                                <button class="copy-btn">Copy</button>
+                            </div>
+                        </div>
+
+                        <div class="note" style="background: rgba(245, 158, 11, 0.1); border-left-color: #f59e0b;">
+                            ⚠️ <strong>GDPR Compliance:</strong><br>
+                            • Set retention policy sesuai regulasi (default: 30 hari)<br>
+                            • Backup harus ter-enkripsi (pakai TLS + storage encryption)<br>
+                            • Log semua backup activities untuk audit trail
+                        </div>
+
+                        <div class="code-block-wrapper">
+                            <span class="code-label">Verify Cron Job</span>
+                            <div class="code-container">
+                                <code># Lihat cron jobs yang active
+sudo crontab -u cockroach -l
+
+# Monitor backup logs
+tail -f /var/log/cockroach-backups/backup.log</code>
+                                <button class="copy-btn">Copy</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Task 4: Restore Database -->
+                <div class="item-card" data-id="backup_restore">
+                    <div class="item-card-header" onclick="toggleCheck(this)">
+                        <div class="custom-checkbox"></div>
+                        <span class="item-title">4. Restore Database <span
+                                style="font-size: 0.65rem; background: #f43f5e; color: #fff; padding: 2px 6px; border-radius: 4px; margin-left: 8px;">DISASTER
+                                RECOVERY</span></span>
+                        <span class="item-status">Pending</span>
+                    </div>
+                    <div class="item-body">
+                        <div class="tutorial-card" style="border-left: 4px solid #f43f5e; margin-bottom: 15px;">
+                            <h4 style="margin-top: 0; color: #f43f5e;">⚠️ Pilih Metode Restore</h4>
+                            <p style="font-size: 0.9rem; margin-bottom: 10px;">
+                                Ada 3 mode restore dengan risk level berbeda:
+                            </p>
+                        </div>
+
+                        <div class="code-block-wrapper">
+                            <span class="code-label">Mode 1: Restore ke Database Baru (SAFE)</span>
+                            <div class="code-container">
+                                <code># Recommended untuk testing restore
+bash scripts/restore_cockroach.sh your_database 'nodelocal://self/backups/base-backup' new
+
+# Database akan dibuat dengan nama: your_database_restored_20260119_062200</code>
+                                <button class="copy-btn">Copy</button>
+                            </div>
+                        </div>
+
+                        <div class="note"
+                            style="background: rgba(34, 197, 94, 0.1); border-left-color: #22c55e; margin-bottom: 15px;">
+                            ✅ <strong>Safe Mode:</strong> Data existing tetap aman, restore ke database terpisah
+                        </div>
+
+                        <div class="code-block-wrapper">
+                            <span class="code-label">Mode 2: Replace Existing Database (DESTRUCTIVE)</span>
+                            <div class="code-container">
+                                <code># HATI-HATI: Ini akan menghapus database current!
+bash scripts/restore_cockroach.sh your_database 'nodelocal://self/backups/base-backup' replace
+
+# Script akan minta konfirmasi: ketik "YES" untuk proceed</code>
+                                <button class="copy-btn">Copy</button>
+                            </div>
+                        </div>
+
+                        <div class="note"
+                            style="background: rgba(244, 63, 94, 0.1); border-left-color: #f43f5e; margin-bottom: 15px;">
+                            🔴 <strong>Destructive Mode:</strong> Database existing akan di-DROP! Backup dulu sebelum
+                            replace.
+                        </div>
+
+                        <div class="code-block-wrapper">
+                            <span class="code-label">Mode 3: Point-in-Time Recovery</span>
+                            <div class="code-container">
+                                <code># Restore ke waktu tertentu (butuh revision_history)
+bash scripts/restore_cockroach.sh your_database 'nodelocal://self/backups/base-backup' point-in-time
+
+# Script akan tanya timestamp: 2026-01-19 10:00:00</code>
+                                <button class="copy-btn">Copy</button>
+                            </div>
+                        </div>
+
+                        <div class="code-block-wrapper">
+                            <span class="code-label">Manual Restore (Advanced)</span>
+                            <div class="code-container">
+                                <code># Restore manual via SQL
+cockroach sql --insecure --host=NODE_IP --port=26257 -e "
+CREATE DATABASE your_database_restored;
+
+RESTORE DATABASE your_database 
+FROM LATEST IN 'nodelocal://self/backups/base-backup'
+WITH into_db = 'your_database_restored';"
+
+# Verify data
+USE your_database_restored;
+SHOW TABLES;
+SELECT COUNT(*) FROM your_critical_table;</code>
+                                <button class="copy-btn">Copy</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Task 5: Verify Backup -->
+                <div class="item-card" data-id="backup_verify">
+                    <div class="item-card-header" onclick="toggleCheck(this)">
+                        <div class="custom-checkbox"></div>
+                        <span class="item-title">5. Verify Backup Integrity <span
+                                style="font-size: 0.65rem; background: var(--accent); color: #000; padding: 2px 6px; border-radius: 4px; margin-left: 8px;">BEST
+                                PRACTICE</span></span>
+                        <span class="item-status">Pending</span>
+                    </div>
+                    <div class="item-body">
+                        <div class="code-block-wrapper">
+                            <span class="code-label">List Backup Contents</span>
+                            <div class="code-container">
+                                <code># Lihat isi backup
+cockroach sql --insecure --host=NODE_IP --port=26257 -e "
+SHOW BACKUP FROM LATEST IN 'nodelocal://self/backups/base-backup';"</code>
+                                <button class="copy-btn">Copy</button>
+                            </div>
+                        </div>
+
+                        <div class="code-block-wrapper">
+                            <span class="code-label">Test Restore (Dry Run)</span>
+                            <div class="code-container">
+                                <code># Test restore ke temporary database
+cockroach sql --insecure --host=NODE_IP --port=26257 -e "
+CREATE DATABASE backup_test_temp;
+
+RESTORE DATABASE your_database 
+FROM LATEST IN 'nodelocal://self/backups/base-backup'
+WITH into_db = 'backup_test_temp';"
+
+# Verify table count
+cockroach sql --insecure --host=NODE_IP --port=26257 -e "
+SELECT COUNT(*) FROM information_schema.tables 
+WHERE table_schema = 'public' AND table_catalog = 'backup_test_temp';"
+
+# Cleanup test database
+cockroach sql --insecure --host=NODE_IP --port=26257 -e "
+DROP DATABASE backup_test_temp CASCADE;"</code>
+                                <button class="copy-btn">Copy</button>
+                            </div>
+                        </div>
+
+                        <div class="note" style="border-left-color: #f59e0b; background: rgba(245, 158, 11, 0.1);">
+                            💡 <strong>Best Practice:</strong><br>
+                            • Test restore setiap bulan untuk memastikan backup valid<br>
+                            • Simpan backup di multiple locations (local + cloud)<br>
+                            • Monitor backup size dan duration trends<br>
+                            • Document restore procedure untuk disaster recovery
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
 
         </main>
 
