@@ -199,12 +199,15 @@ done
 echo "  - Max Connections: $MAXCONN"
 echo "  - Load Balancing: Round Robin (CockroachDB recommended)"
 echo ""
+# Get current IP
+CURRENT_IP=$(hostname -I | awk '{print $1}')
+
 echo "Access Points:"
-echo "  - SQL Traffic: <this-server-ip>:26257"
-echo "  - Stats Dashboard: http://<this-server-ip>:8081"
+echo "  - SQL Traffic: ${CURRENT_IP}:26257"
+echo "  - Stats Dashboard: http://${CURRENT_IP}:8081"
 echo ""
-echo "Test Connection:"
-echo "  cockroach sql --insecure --host=<this-server-ip> --port=26257"
+echo "Test Connection (Run from Client/Node 1):"
+echo "  cockroach sql --insecure --host=${CURRENT_IP} --port=26257"
 echo ""
 echo "Monitor HAProxy:"
 echo "  sudo systemctl status haproxy"

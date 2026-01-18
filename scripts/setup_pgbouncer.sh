@@ -230,9 +230,13 @@ EOF
 sudo systemctl daemon-reload
 
 
-# 8. Skip explicit test as many pgbouncer versions don't support -t
+# 8. Start/Restart PgBouncer to apply changes immediately
+echo "Applying configuration..."
+sudo systemctl enable pgbouncer
+sudo systemctl restart pgbouncer
+
 echo "PgBouncer configuration generated at /etc/pgbouncer/pgbouncer.ini"
-echo "✅ Setup steps completed"
+echo "✅ Setup steps completed & Service Restarted"
 
 echo ""
 echo "=============================================="
@@ -246,7 +250,7 @@ echo "   sudo systemctl enable pgbouncer"
 echo ""
 echo "2. Verify PgBouncer is running:"
 echo "   sudo systemctl status pgbouncer"
-echo "   netstat -tlnp | grep 6432"
+echo "   sudo netstat -tlnp | grep 6432"
 echo ""
 echo "3. Test connection through PgBouncer:"
 echo "   psql -h localhost -p 6432 -U ${DB_USER} -d ${DATABASE}"
