@@ -211,17 +211,20 @@ Description=PgBouncer Connection Pooler for CockroachDB
 After=network.target
 
 [Service]
-Type=forking
+Type=simple
 User=postgres
 Group=postgres
 # Ensure runtime directory exists for PID and Sockets
 RuntimeDirectory=pgbouncer
 RuntimeDirectoryMode=0755
-ExecStart=$PGBOUNCER_BIN -d /etc/pgbouncer/pgbouncer.ini
+# Run in foreground mode (no -d flag) for Type=simple
+ExecStart=$PGBOUNCER_BIN /etc/pgbouncer/pgbouncer.ini
 ExecReload=/bin/kill -HUP \$MAINPID
 KillSignal=SIGINT
 Restart=on-failure
 RestartSec=5
+# Prevent systemd from sending signals during startup
+TimeoutStartSec=10
 
 [Install]
 WantedBy=multi-user.target
